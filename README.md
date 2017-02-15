@@ -6,7 +6,7 @@ Description
 
 A PHP library to tidy DOCX XML files: merges successive elements of same type and properties.
 
-By simplifying the markup of DOCX XML DocxTidy alleviates the efforts needed for custom modifications (for instance DOCX-based templating).
+By simplifying the markup of DOCX XML, DocxTidy alleviates the efforts needed for custom modifications (for instance DOCX-based templating).
 
 * Merges successive runs having identical run-properties
 * Merges successive elements of same type (&lt;w:t&gt;, &lt;w:instrText&gt;) within each run
