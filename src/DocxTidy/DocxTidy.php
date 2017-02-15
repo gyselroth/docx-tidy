@@ -12,7 +12,7 @@
  *
  * @package DocxTidy
  * @version 0.1.0
- * @link    <none yet>
+ * @link    https://github.com/gyselroth/docx-tidy
  * @author  gyselroth™  (http://www.gyselroth.com)
  * @license https://www.apache.org/licenses/LICENSE-2.0 Apache 2.0 license
  */
@@ -150,7 +150,7 @@ class DocxTidy
     }
 
     /**
-     * Check whether given list of elementTypes might contain any that can be merged.
+     * Check whether given list of elementTypes might contain any tags that can be merged.
      * The elements of these types are not merge-able if:
      *
      * 1. The list is empty
