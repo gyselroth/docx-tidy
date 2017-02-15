@@ -1,0 +1,17 @@
+{
+    "name": "gyselroth/docx-tidy",
+    "description": "Simplify markup of DOCX XML by tidying successive elements w/ redundant properties / types.",
+    "keywords": ["xml", "docx", "tidy"],
+    "homepage": "https://github.com/gyselroth/docx-tidy",
+    "type": "library",
+    "license": "Apache-2.0",
+    "authors": [
+        {
+            "name": "gyselroth",
+            "email": "mail@gyselroth.com"
+        }
+    ],
+    "require": {
+        "php":       ">=5.5.0"
+    }
+}
