@@ -8,12 +8,12 @@
  * 1. Merge successive runs having identical run-properties
  * 2. Merge successive elements of same type (<w:t>, <w:instrText>) within each run
  *
- * Copyright (c) 2017 gyselroth™  (http://www.gyselroth.net)
+ * Copyright (c) 2017 gyselroth™  (http://www.gyselroth.com)
  *
  * @package DocxTidy
  * @version 0.1.0
  * @link    <none yet>
- * @author  gyselroth™  (http://www.gyselroth.net)
+ * @author  gyselroth™  (http://www.gyselroth.com)
  * @license https://www.apache.org/licenses/LICENSE-2.0 Apache 2.0 license
  */
 

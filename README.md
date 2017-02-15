@@ -37,7 +37,7 @@ Microsoft Office and Word are registered trademarks of Microsoft Corporation.
 License
 -------
 
-Copyright 2017 gyselroth™ (http://www.gyselroth.net)
+Copyright 2017 gyselroth™ (http://www.gyselroth.com)
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
