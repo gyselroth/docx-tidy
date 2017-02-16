@@ -51,7 +51,7 @@ Usage
 ```php
 <?php
 
-use Gyselroth\DocxTidy;
+use DocxTidy\DocxTidy;
 
 // tidy a DOCX file
 (new DocxTidy())->tidyDocx('path/to/your.docx');
@@ -62,7 +62,7 @@ use Gyselroth\DocxTidy;
 ```php
 <?php
 
-use Gyselroth\DocxTidy;
+use DocxTidy\DocxTidy;
 
 // read DOCX XML, e.g. "document.xml" / "header1.xml" / etc
 $xml = file_get_contents('path/to/your_unzipped_docx/word/document.xml');
