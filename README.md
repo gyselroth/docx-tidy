@@ -43,6 +43,37 @@ $ composer require gyselroth/docx-tidy
 ```
 
 
+Usage
+-----
+
+### Example 1: Tidy a whole DOCX file
+
+```php
+<?php
+
+use Gyselroth\src\DocxTidy;
+
+// tidy a DOCX file
+$docxTidy = new DocxTidy();
+$docxTidy->tidyDocx('path/to/your.docx');
+```
+
+### Example 2: Tidy an XML (string)
+
+```php
+<?php
+
+use Gyselroth\src\DocxTidy;
+
+// read DOCX XML, e.g. "document.xml" / "header1.xml" / etc
+$xml = file_get_contents('path/to/your_unzipped_docx/word/document.xml');
+
+// tidy a DOCX file
+$docxTidy = new DocxTidy();
+$xml = $docxTidy->tidyXml($xml);
+```
+
+
 Changelog
 ---------
 
