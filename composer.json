@@ -19,7 +19,7 @@
         "phpunit/phpunit": "^5.5"
     },
     "autoload": {
-        "psr-4": {"Gyselroth\\": "src/DocxTidy"}
+        "psr-4": {"DocxTidy\\": "src"}
     },
     "extra": {
         "branch-alias": {
