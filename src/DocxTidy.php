@@ -105,7 +105,10 @@ class DocxTidy
         $xml = DocxXml::implodeWithGlues($paragraphs, $paragraphOpenTags);
 
         // Runs of leading and trailing spaces get stripped if xml:space isn’t set to preserve, and are preserved otherwise
-        return str_replace('<w:t>', '<w:t space="preserve">', $xml);
+        return str_replace(
+            ['<w:t>',                  '<w:instrText>'],
+            ['<w:t space="preserve">', '<w:instrText space="preserve">'],
+            $xml);
     }
 
     /**
