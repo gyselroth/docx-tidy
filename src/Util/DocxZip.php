@@ -57,8 +57,8 @@ class DocxZip
      */
     public static function zipFilesToDocx($docxPath, $outputName)
     {
-        $directory = dirname($docxPath) . '/';
-        $outputZip = $directory . str_replace('.docx', '.zip', empty($outputName) ? $docxPath : $outputName);
+        $outputDocx = (empty($outputName) ? dirname($docxPath) . $docxPath : dirname($outputName) . $outputName);
+        $outputZip = str_replace('.docx', '.zip', $outputDocx);
 
         if (file_exists($outputZip)) {
             unlink($outputZip);
@@ -67,8 +67,6 @@ class DocxZip
         $zip = Zip::create($outputZip, true);
         $zip->add(self::filenameWithoutExtension($docxPath));
         $zip->close();
-
-        $outputDocx = str_replace('.zip', '.docx', $outputZip);
 
         if (file_exists($outputDocx)) {
             unlink($outputDocx);
