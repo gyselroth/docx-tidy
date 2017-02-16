@@ -17,9 +17,9 @@
  * @license https://www.apache.org/licenses/LICENSE-2.0 Apache 2.0 license
  */
 
-namespace Gyselroth\src;
+namespace DocxTidy;
 
-use \Gyselroth\src\DocxTidy\Util\DocxXml;
+use DocxTidy\Util\DocxXml;
 
 class DocxTidy
 {
