@@ -1,8 +1,8 @@
 DocxTidy
 ========
 
-[![Total Downloads](https://img.shields.io/packagist/dt/gyselroth/docx-xml.svg)](https://packagist.org/packages/gyselroth/docx-xml)
-[![Latest Stable Version](https://img.shields.io/packagist/v/gyselroth/docx-xml.svg)](https://packagist.org/packages/gyselroth/docx-xml)
+[![Total Downloads](https://img.shields.io/packagist/dt/gyselroth/docx-tidy.svg)](https://packagist.org/packages/gyselroth/docx-tidy)
+[![Latest Stable Version](https://img.shields.io/packagist/v/gyselroth/docx-tidy.svg)](https://packagist.org/packages/gyselroth/docx-tidy)
 
 
 Description
