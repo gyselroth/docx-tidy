@@ -78,14 +78,20 @@ Changelog
 https://github.com/gyselroth/docx-tidy/blob/master/CHANGELOG.md
 
 
+Submitting bugs and feature requests
+------------------------------------
+
+Bugs and feature request are tracked on [GitHub](https://github.com/gyselroth/docx-tidy/issues)
+
+
 Third party acknowledgements
 ----------------------------
 
 Microsoft Office and Word are registered trademarks of Microsoft Corporation.
 
 
-License
--------
+Author and License
+------------------
 
 Copyright 2017 gyselroth™ (http://www.gyselroth.com)
 

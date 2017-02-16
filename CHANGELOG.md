@@ -5,6 +5,7 @@ Version 0.2.0 - not fully implemented/released yet
 --------------------------------------------------
 
 * Added: Tidy full DOCX including unpack and re-archive
+* Added: Usage examples
 * Added: Verified and documented install using composer
 
 
