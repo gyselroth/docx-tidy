@@ -14,7 +14,9 @@
 
 namespace DocxTidy\Util;
 
-use Comodojo\Zip\Zip;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
+use ZipArchive;
 
 class DocxZip
 {
@@ -29,10 +31,14 @@ class DocxZip
         $extractedFiles = self::filenameWithoutExtension($docxPath);
         $zipPath        = $extractedFiles . '.zip';
         copy($docxPath, $zipPath);
+        
+        self::rmdirRecursive($extractedFiles);
 
-        $zip = Zip::open($zipPath);
-        $zip->extract($extractedFiles);
-        $zip->close();
+        $zipArchive = new ZipArchive();
+        $zipArchive->open($zipPath);
+        chmod($extractedFiles, 0777);
+        $zipArchive->extractTo($extractedFiles);
+        $zipArchive->close();
 
         $xmlLocation   = $extractedFiles . '/word/';
         $folderContent = scandir($xmlLocation);
@@ -66,11 +72,37 @@ class DocxZip
 
         $extractedFiles = self::filenameWithoutExtension($docxPath);
 
-        $zip = Zip::create($outputZip, true);
-        $zip->add($extractedFiles);
-        $zip->close();
+        $zipArchive = new ZipArchive();
+        $zipArchive->open($outputZip, ZipArchive::CREATE);
 
-        self::deleteDirectory($extractedFiles);
+        $extractedFiles = str_replace('\\', DIRECTORY_SEPARATOR, realpath($extractedFiles));
+
+        if (is_dir($extractedFiles) === true) {
+            $files    = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($extractedFiles), RecursiveIteratorIterator::SELF_FIRST);
+            $pathDots = ['.', '..'];
+            foreach ($files as $file) {
+                $file = str_replace('\\', DIRECTORY_SEPARATOR, $file);
+
+                // ignore "." and ".." folders
+                if (in_array(substr($file, strrpos($file, DIRECTORY_SEPARATOR) + 1), $pathDots, true)) {
+                    continue;
+                }
+
+                $file = realpath($file);
+
+                if (is_dir($file) === true) {
+                    $zipArchive->addEmptyDir(str_replace($extractedFiles . DIRECTORY_SEPARATOR, '', $file . DIRECTORY_SEPARATOR));
+                } elseif (is_file($file) === true) {
+                    $zipArchive->addFile($file, str_replace($extractedFiles . DIRECTORY_SEPARATOR, '', $file));
+                }
+            }
+        } elseif (is_file($extractedFiles) === true) {
+            $zipArchive->addFile($extractedFiles, basename($extractedFiles));
+        }
+        
+        $zipArchive->close();
+
+        self::rmdirRecursive($extractedFiles);
 
         if (file_exists($outputDocx)) {
             unlink($outputDocx);
@@ -92,7 +124,7 @@ class DocxZip
      * @param string $directory
      * @return bool
      */
-    public static function deleteDirectory($directory)
+    public static function rmdirRecursive($directory)
     {
         if (!file_exists($directory)) {
             return true;
@@ -103,11 +135,11 @@ class DocxZip
         }
 
         foreach (scandir($directory) as $item) {
-            if ($item == '.' || $item == '..') {
+            if ($item === '.' || $item === '..') {
                 continue;
             }
 
-            if (!self::deleteDirectory($directory . DIRECTORY_SEPARATOR . $item)) {
+            if (!self::rmdirRecursive($directory . DIRECTORY_SEPARATOR . $item)) {
                 return false;
             }
 
