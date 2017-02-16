@@ -20,6 +20,7 @@
 namespace DocxTidy;
 
 use DocxTidy\Util\DocxXml;
+use DocxTidy\Util\DocxZip;
 
 class DocxTidy
 {
@@ -62,7 +63,7 @@ class DocxTidy
      * @return string
      * @throws \InvalidArgumentException
      */
-    public function tidy($xml, $removePattern = null)
+    public function tidyXml($xml, $removePattern = null)
     {
         if ($removePattern !== false) {
             if ($removePattern === null) {
@@ -111,6 +112,25 @@ class DocxTidy
             $xml);
     }
 
+    /**
+     * @param string      $docxPath
+     * @param string|null $outputName
+     * @param string|null $removePattern
+     */
+    public function tidyDocx($docxPath, $outputName = null, $removePattern = null)
+    {
+        $xmlFiles = DocxZip::unzipDocx($docxPath);
+
+        foreach ($xmlFiles as $xmlFile) {
+            $xmlContent = file_get_contents($xmlFile);
+            $tidyXml    = $this->tidyXml($xmlContent, $removePattern);
+
+            file_put_contents($xmlFile, $tidyXml);
+        }
+
+        DocxZip::zipFilesToDocx($docxPath, $outputName);
+    }
+    
     /**
      * Merge successive run elements (<w:t> or <w:instrText>) within current run (of current paragraph)
      *

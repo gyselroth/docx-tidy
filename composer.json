@@ -13,10 +13,8 @@
         }
     ],
     "require": {
-        "php":       ">=5.5.0"
-    },
-    "require-dev": {
-        "phpunit/phpunit": "^5.5"
+        "php":       ">=5.5.0",
+        "comodojo/zip": "2.0.2"
     },
     "autoload": {
         "psr-4": {"DocxTidy\\": "src"}
