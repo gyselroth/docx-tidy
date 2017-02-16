@@ -67,7 +67,7 @@ use Gyselroth\DocxTidy;
 // read DOCX XML, e.g. "document.xml" / "header1.xml" / etc
 $xml = file_get_contents('path/to/your_unzipped_docx/word/document.xml');
 
-// tidy a DOCX file
+// tidy DOCX XML string
 $xml = (new DocxTidy())->tidyXml($xml);
 ```
 
