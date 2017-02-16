@@ -1,17 +1,34 @@
 {
     "name": "gyselroth/docx-tidy",
     "description": "Simplify markup of DOCX XML by tidying successive elements w/ redundant properties / types.",
-    "keywords": ["xml", "docx", "tidy"],
+    "keywords": ["docx", "markup", "minification", "office", "tidy", "word", "xml"],
     "homepage": "https://github.com/gyselroth/docx-tidy",
     "type": "library",
     "license": "Apache-2.0",
     "authors": [
         {
             "name": "gyselroth",
-            "email": "mail@gyselroth.com"
+            "email": "mail@gyselroth.com",
+            "homepage": "http://www.gyselroth.com"
         }
     ],
     "require": {
         "php":       ">=5.5.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^5.5"
+    },
+    "autoload": {
+        "psr-4": {"Gyselroth\\": "src/DocxTidy"}
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "0.2.x-dev"
+        }
+    },
+    "scripts": {
+        "test": [
+            "phpunit"
+        ]
     }
 }
