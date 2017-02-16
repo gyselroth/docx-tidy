@@ -11,7 +11,7 @@
  * Copyright (c) 2017 gyselroth™  (http://www.gyselroth.com)
  *
  * @package DocxTidy
- * @version 0.1.0
+ * @version 0.2.0
  * @link    https://github.com/gyselroth/docx-tidy
  * @author  gyselroth™  (http://www.gyselroth.com)
  * @license https://www.apache.org/licenses/LICENSE-2.0 Apache 2.0 license
@@ -19,7 +19,7 @@
 
 namespace Gyselroth\src;
 
-use Gyselroth\src\Util\DocxXml;
+use \Gyselroth\src\DocxTidy\Util\DocxXml;
 
 class DocxTidy
 {

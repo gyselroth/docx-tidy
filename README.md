@@ -12,14 +12,27 @@ By simplifying the markup of DOCX XML, DocxTidy alleviates the efforts needed fo
 * Merges successive elements of same type (&lt;w:t&gt;, &lt;w:instrText&gt;) within each run
 
 
+DocxTidy supports two tidying modes:
+
+1. DOCX files (includes unpacking and re-archiving of contained XML files)
+2. XML string
+
+
 Please Note
 -----------
 
+* By merging segmented tags, DocxTidy removes versioning/editing history information
 * When run with default settings, DocxTidy removes spellchecking flags ("noProof", "proofErr", "lang")
-* DocxTidy removes all space="preserve" flags and re-inserts space="preserve" into all w:t tags
+* DocxTidy removes all space="preserve" flags and re-inserts space="preserve" into all &lt;w:t&gt; tags
 
 This library is distributed on an “AS IS” BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, 
 either express or implied.
+
+
+Installation
+------------
+
+Following soon...
 
 
 Changelog
