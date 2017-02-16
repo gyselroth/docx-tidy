@@ -114,10 +114,10 @@ class DocxTidy
 
     /**
      * @param string      $docxPath
-     * @param string|null $outputName
+     * @param string|null $outputPath
      * @param string|null $removePattern
      */
-    public function tidyDocx($docxPath, $outputName = null, $removePattern = null)
+    public function tidyDocx($docxPath, $outputPath = null, $removePattern = null)
     {
         $xmlFiles = DocxZip::unzipDocx($docxPath);
 
@@ -128,7 +128,7 @@ class DocxTidy
             file_put_contents($xmlFile, $tidyXml);
         }
 
-        DocxZip::zipFilesToDocx($docxPath, $outputName);
+        DocxZip::zipFilesToDocx($docxPath, $outputPath);
     }
     
     /**

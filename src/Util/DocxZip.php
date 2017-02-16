@@ -20,7 +20,7 @@ class DocxZip
 {
 
     /**
-     * @param $docxPath
+     * @param string $docxPath
      * @return array
      * @throws \Comodojo\Exception\ZipException
      */
@@ -51,14 +51,14 @@ class DocxZip
     }
 
     /**
-     * @param $docxPath
-     * @param $outputName
+     * @param string      $docxPath
+     * @param string|null $outputPath
      * @throws \Comodojo\Exception\ZipException
      */
-    public static function zipFilesToDocx($docxPath, $outputName)
+    public static function zipFilesToDocx($docxPath, $outputPath = null)
     {
-        $outputDocx = (empty($outputName) ? dirname($docxPath) . $docxPath : dirname($outputName) . $outputName);
-        $outputZip = str_replace('.docx', '.zip', $outputDocx);
+        $outputDocx = empty($outputPath) ? $docxPath : $outputPath;
+        $outputZip  = str_replace('.docx', '.zip', $outputDocx);
 
         if (file_exists($outputZip)) {
             unlink($outputZip);
@@ -76,7 +76,7 @@ class DocxZip
     }
 
     /**
-     * @param $filename
+     * @param string $filename
      * @return string
      */
     public static function filenameWithoutExtension($filename)
@@ -85,7 +85,7 @@ class DocxZip
     }
 
     /**
-     * @param $directory
+     * @param string $directory
      * @return bool
      */
     public static function deleteDirectory($directory)
