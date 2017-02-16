@@ -45,8 +45,6 @@ class DocxZip
             }
         }
 
-        self::deleteDirectory($extractedFiles);
-
         return $xmlFiles;
     }
 
@@ -64,9 +62,13 @@ class DocxZip
             unlink($outputZip);
         }
 
+        $extractedFiles = self::filenameWithoutExtension($docxPath);
+
         $zip = Zip::create($outputZip, true);
-        $zip->add(self::filenameWithoutExtension($docxPath));
+        $zip->add($extractedFiles);
         $zip->close();
+
+        self::deleteDirectory($extractedFiles);
 
         if (file_exists($outputDocx)) {
             unlink($outputDocx);
