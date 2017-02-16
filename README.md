@@ -51,11 +51,10 @@ Usage
 ```php
 <?php
 
-use Gyselroth\src\DocxTidy;
+use Gyselroth\DocxTidy;
 
 // tidy a DOCX file
-$docxTidy = new DocxTidy();
-$docxTidy->tidyDocx('path/to/your.docx');
+(new DocxTidy())->tidyDocx('path/to/your.docx');
 ```
 
 ### Example 2: Tidy an XML (string)
@@ -63,14 +62,13 @@ $docxTidy->tidyDocx('path/to/your.docx');
 ```php
 <?php
 
-use Gyselroth\src\DocxTidy;
+use Gyselroth\DocxTidy;
 
 // read DOCX XML, e.g. "document.xml" / "header1.xml" / etc
 $xml = file_get_contents('path/to/your_unzipped_docx/word/document.xml');
 
 // tidy a DOCX file
-$docxTidy = new DocxTidy();
-$xml = $docxTidy->tidyXml($xml);
+$xml = (new DocxTidy())->tidyXml($xml);
 ```
 
 
