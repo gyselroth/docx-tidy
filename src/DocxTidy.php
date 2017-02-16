@@ -50,7 +50,7 @@ class DocxTidy
      */
     public function __construct()
     {
-        require_once('Util/DocxXml.php');
+
     }
 
     /**
