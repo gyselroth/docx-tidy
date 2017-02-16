@@ -45,6 +45,8 @@ class DocxZip
             }
         }
 
+        unlink($zipPath);
+
         return $xmlFiles;
     }
 
