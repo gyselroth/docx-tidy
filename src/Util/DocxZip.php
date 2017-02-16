@@ -45,7 +45,7 @@ class DocxZip
             }
         }
 
-        rmdir($extractedFiles);
+        self::deleteDirectory($extractedFiles);
 
         return $xmlFiles;
     }
@@ -80,5 +80,32 @@ class DocxZip
     public static function filenameWithoutExtension($filename)
     {
         return substr($filename, 0, strrpos($filename, '.'));
+    }
+
+    /**
+     * @param $directory
+     * @return bool
+     */
+    public static function deleteDirectory($directory) {
+        if (!file_exists($directory)) {
+            return true;
+        }
+
+        if (!is_dir($directory)) {
+            return unlink($directory);
+        }
+
+        foreach (scandir($directory) as $item) {
+            if ($item == '.' || $item == '..') {
+                continue;
+            }
+
+            if (!self::deleteDirectory($directory . DIRECTORY_SEPARATOR . $item)) {
+                return false;
+            }
+
+        }
+
+        return rmdir($directory);
     }
 }
