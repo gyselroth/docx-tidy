@@ -60,6 +60,10 @@ class DocxZip
         $directory = dirname($docxPath) . '/';
         $outputZip = $directory . str_replace('.docx', '.zip', empty($outputName) ? $docxPath : $outputName);
 
+        if (file_exists($outputZip)) {
+            unlink($outputZip);
+        }
+
         $zip = Zip::create($outputZip, true);
         $zip->add(self::filenameWithoutExtension($docxPath));
         $zip->close();
@@ -86,7 +90,8 @@ class DocxZip
      * @param $directory
      * @return bool
      */
-    public static function deleteDirectory($directory) {
+    public static function deleteDirectory($directory)
+    {
         if (!file_exists($directory)) {
             return true;
         }
