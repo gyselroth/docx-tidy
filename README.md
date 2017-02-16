@@ -1,6 +1,10 @@
 DocxTidy
 ========
 
+[![Total Downloads](https://img.shields.io/packagist/dt/monolog/monolog.svg)](https://packagist.org/packages/gyselroth/docx-xml)
+[![Latest Stable Version](https://img.shields.io/packagist/v/monolog/monolog.svg)](https://packagist.org/packages/gyselroth/docx-xml)
+
+
 Description
 -----------
 
@@ -32,7 +36,11 @@ either express or implied.
 Installation
 ------------
 
-Following soon...
+Install the latest version with
+
+```bash
+$ composer require gyselroth/docx-tidy
+```
 
 
 Changelog
