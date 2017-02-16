@@ -32,11 +32,11 @@ class DocxTidy
     const PATTERN_ELEMENT_TAG_UNCLOSED = '/<(\/)?w:[a-z]+/i';
 
     // Items which will be removed by default from the whole XML
-    const PATTERN_LANG            = '<w:lang w:val="[a-z|-]{2,5}"\/>';
-    const PATTERN_NO_PROOF        = '<w:noProof\/>';
-    const PATTERN_PROOF_ERR       = '<w:proofErr w:type="\w+"\/>';
+    const PATTERN_LANG      = '<w:lang w:val="[a-z|-]{2,5}"\/>';
+    const PATTERN_NO_PROOF  = '<w:noProof\/>';
+    const PATTERN_PROOF_ERR = '<w:proofErr w:type="\w+"\/>';
 
-    const STRING_SPACE_PRESERVE  = ' xml:space="preserve"';
+    const STRING_SPACE_PRESERVE = ' xml:space="preserve"';
 
     /** @var array  Array of content of runs (w/o run-opening tag) */
     private $runsInCurrentParagraph;

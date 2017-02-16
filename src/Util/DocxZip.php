@@ -24,7 +24,6 @@ class DocxZip
     /**
      * @param string $docxPath
      * @return array
-     * @throws \Comodojo\Exception\ZipException
      */
     public static function unzipDocx($docxPath)
     {
@@ -59,7 +58,6 @@ class DocxZip
     /**
      * @param string      $docxPath
      * @param string|null $outputPath
-     * @throws \Comodojo\Exception\ZipException
      */
     public static function zipFilesToDocx($docxPath, $outputPath = null)
     {
