@@ -32,9 +32,12 @@ class DocxTidy
     const PATTERN_ELEMENT_TAG_UNCLOSED = '/<(\/)?w:[a-z]+/i';
 
     // Items which will be removed by default from the whole XML
-    const PATTERN_LANG      = '<w:lang w:val="[a-z|-]{2,5}"\/>';
-    const PATTERN_NO_PROOF  = '<w:noProof\/>';
-    const PATTERN_PROOF_ERR = '<w:proofErr w:type="\w+"\/>';
+    const PATTERN_LANG       = '<w:lang w:val="[a-z|-]{2,5}"\/>';
+    const PATTERN_NO_PROOF   = '<w:noProof\/>';
+    const PATTERN_PROOF_ERR  = '<w:proofErr w:type="\w+"\/>';
+    const PATTERN_FONTS_HINT = '<w:rFonts w:hint="\w+"\/>';
+    const PATTERN_W_HINT     = '\sw:hint="\w+"';
+    const PATTERN_EMPTY_TAG  = '<w:([a-z]+)><\/w:([a-z]+)>';
 
     const STRING_SPACE_PRESERVE = ' xml:space="preserve"';
 
@@ -68,9 +71,11 @@ class DocxTidy
         if ($removePattern !== false) {
             if ($removePattern === null) {
                 // Default: remove spell-check flags
-                $removePattern = '/' . self::PATTERN_NO_PROOF . '|' . self::PATTERN_PROOF_ERR . '|' . self::PATTERN_LANG . '/i';
+                $removePattern = '/' . self::PATTERN_NO_PROOF . '|' . self::PATTERN_PROOF_ERR . '|' . self::PATTERN_LANG . '|' . self::PATTERN_FONTS_HINT . '|' . self::PATTERN_EMPTY_TAG . '|' . self::PATTERN_W_HINT . '/i';
             }
-            $xml = preg_replace($removePattern, '', $xml);
+            do {
+                $xml = preg_replace($removePattern, '', $xml, -1, $count);
+            } while ($count > 0);
         }
 
         // Remove all space preserve occurrences as they will be added into the paragraph later
@@ -99,6 +104,9 @@ class DocxTidy
 
                     // Update runs in current paragraph w/ merged runs
                     $paragraphs[$indexParagraph] = DocxXml::implodeWithGlues($this->runsInCurrentParagraph, $this->runOpenTagsInCurrentParagraph);
+                } if($amountRunsInCurrentParagraph === 0) {
+                    $paragraphs[$indexParagraph] = '';
+                    $paragraphOpenTags[$indexParagraph] = '';
                 }
             } while ($amountRunsMerged > 0 || $amountElementsMerged > 0);
         }
@@ -130,7 +138,7 @@ class DocxTidy
 
         DocxZip::zipFilesToDocx($docxPath, $outputPath);
     }
-    
+
     /**
      * Merge successive run elements (<w:t> or <w:instrText>) within current run (of current paragraph)
      *
@@ -272,10 +280,9 @@ class DocxTidy
         $runPropertiesCurrent = $runProperties[$indexRun];
         $runPropertiesNext    = $runProperties[$indexRun + 1];
 
-        if (!$runPropertiesCurrent || $runPropertiesCurrent !== $runPropertiesNext) {
+        if ($runPropertiesCurrent !== $runPropertiesNext && $runPropertiesNext !== null) {
             return false;
         }
-
         // Following run's Run-properties are identical to current
         // Remove: 1. close-tag of current run, 2. open-tag of next run, 3. run-properties of next run
         $this->runsInCurrentParagraph[$indexRun]     = preg_replace(self::PATTERN_RUN_CLOSE, '', $this->runsInCurrentParagraph[$indexRun]);
