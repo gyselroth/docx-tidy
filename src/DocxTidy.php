@@ -57,6 +57,9 @@ class DocxTidy
     /** @var bool   Flag whether parser iteration is currently within (tags contained inside) a fieldCharacter scope (begin...end) */
     private $isWithinFieldCharScope = false;
 
+    /** @var bool   Flag whether fldChar-scope ends within current run */
+    private $isFieldCharScopeEndingInCurrentRun = false;
+
     /** @var bool|string Properties to be used in (to ensure merge-ability of) all runs inside fieldsCharacter scope */
     private $runPropertiesInFieldCharScope = false;
 
@@ -104,6 +107,7 @@ class DocxTidy
                 // Collect all runs into array
                 $this->runsInCurrentParagraph = DocxXml::preg_split_with_matches(self::PATTERN_RUN_OPEN, $paragraphs[$indexParagraph], $this->runOpenTagsInCurrentParagraph);
                 $amountRunsInCurrentParagraph = count($this->runsInCurrentParagraph);
+
                 if ($amountRunsInCurrentParagraph > 1) {
                     // Iterate over possibly merge-able runs
                     // First item is opening of paragraph, NOT a run. Last item doesn't have any successor to merge w/
@@ -112,13 +116,13 @@ class DocxTidy
                     }
 
                     $amountElementsMerged = $this->mergeRunElements($amountRunsInCurrentParagraph);
-
-                    // Update runs in current paragraph w/ merged runs
-                    $paragraphs[$indexParagraph] = DocxXml::implodeWithGlues($this->runsInCurrentParagraph, $this->runOpenTagsInCurrentParagraph);
-                } if($amountRunsInCurrentParagraph === 0) {
-                    $paragraphs[$indexParagraph] = '';
+                } elseif($amountRunsInCurrentParagraph === 0) {
+                    $paragraphs[$indexParagraph]        = '';
                     $paragraphOpenTags[$indexParagraph] = '';
                 }
+
+                // Update runs in current paragraph w/ merged runs
+                $paragraphs[$indexParagraph] = DocxXml::implodeWithGlues($this->runsInCurrentParagraph, $this->runOpenTagsInCurrentParagraph);
             } while ($amountRunsMerged > 0 || $amountElementsMerged > 0);
         }
 
@@ -237,7 +241,6 @@ class DocxTidy
             $elementsInRun[$index - 1] .= str_replace(['<w:t>', '<w:instrText>'], '', $elementsInRun[$index + 1]);
 
             $elementsInRun[$index]           = '';
-
             $elementTagsUnclosed[$index]     = '';
 
             $elementsInRun[$index + 1]       = '';
@@ -300,32 +303,7 @@ class DocxTidy
         $runPropertiesCurrent = $runProperties[$indexRun];
         $runPropertiesNext    = $runProperties[$indexRun + 1];
 
-        if (!$this->isWithinFieldCharScope) {
-            // While within scope of fieldChar (begin...end): all tags inherit run-properties set by <w:fldChar fldCharType="begin">
-            $this->isWithinFieldCharScope = strpos($this->runsInCurrentParagraph[$indexRun], self::STRING_FLDCHAR_TYPE_BEGIN) !== false;
-        }
-
-        $fieldCharScopeEndsInCurrentRun = strpos($this->runsInCurrentParagraph[$indexRun],     self::STRING_FLDCHAR_TYPE_END) !== false;
-        $fieldCharScopeEndsInNextRun    = strpos($this->runsInCurrentParagraph[$indexRun + 1], self::STRING_FLDCHAR_TYPE_END) !== false;
-        if ($fieldCharScopeEndsInCurrentRun || $fieldCharScopeEndsInNextRun) {
-            // Detect end of fldChar-scope
-            $this->isWithinFieldCharScope        = false;
-            $this->runPropertiesInFieldCharScope = false;
-        }
-
-        if ($this->isWithinFieldCharScope && !$fieldCharScopeEndsInCurrentRun) {
-            // inherit run-properties of fldChar-scope (unless scope spans only this sole run)
-
-            if ($this->runPropertiesInFieldCharScope === false) {
-                $this->runPropertiesInFieldCharScope = $this->getRunPropertiesOfFieldCharScope($indexRun);
-
-                if ($this->runPropertiesInFieldCharScope === false) {
-                    throw new \UnexpectedValueException('No w:t or w:instrText tag found in paragraph after fldCharType="begin"');
-                }
-            }
-
-            $this->runsInCurrentParagraph[$indexRun] = preg_replace(self::PATTERN_RUN_PROPERTIES, $this->runPropertiesInFieldCharScope, $this->runsInCurrentParagraph[$indexRun]);
-
+        if ($this->updateRunPropertiesInFieldCharScope($indexRun)) {
             $runPropertiesNext = $runPropertiesCurrent = $this->runPropertiesInFieldCharScope;
         }
 
@@ -333,12 +311,11 @@ class DocxTidy
             return false;
         }
 
-        // Following run's Run-properties are identical (or inherited while inside fldChar-scope) to current
+        // Following run's run-properties are identical (or inherited while inside fldChar-scope) to current
         // Remove: 1. close-tag of current run, 2. open-tag of next run, 3. run-properties of next run
+        $this->runsInCurrentParagraph[$indexRun]     = preg_replace(self::PATTERN_RUN_CLOSE,      '', $this->runsInCurrentParagraph[$indexRun]);
 
-        $this->runsInCurrentParagraph[$indexRun]     = preg_replace(self::PATTERN_RUN_CLOSE, '', $this->runsInCurrentParagraph[$indexRun]);
-
-        $this->runsInCurrentParagraph[$indexRun + 1] = preg_replace(self::PATTERN_RUN_OPEN, '', $this->runsInCurrentParagraph[$indexRun + 1]);
+        $this->runsInCurrentParagraph[$indexRun + 1] = preg_replace(self::PATTERN_RUN_OPEN,       '', $this->runsInCurrentParagraph[$indexRun + 1]);
         $this->runsInCurrentParagraph[$indexRun + 1] = preg_replace(self::PATTERN_RUN_PROPERTIES, '', $this->runsInCurrentParagraph[$indexRun + 1]);
 
         // Move the two merged runs into the 2nd of them, so it can be compared/merged w/ its successor
@@ -352,34 +329,87 @@ class DocxTidy
     }
 
     /**
-     * @param $indexRunStart
-     * @param $patternTagRunPropertiesSource
+     * @param  int  $index
+     * @return bool         Is within fldChar-scope (and did update run-properties at given index)?
+     */
+    protected function updateRunPropertiesInFieldCharScope($index)
+    {
+        if (!$this->updateIsWithinFieldCharScope($index)) {
+            return false;
+        }
+
+        // Inherit run-properties of fldChar-scope (unless scope spans only this sole run)
+        if ($this->isWithinFieldCharScope && !$this->isFieldCharScopeEndingInCurrentRun) {
+            if ($this->runPropertiesInFieldCharScope === false) {
+                $this->runPropertiesInFieldCharScope = $this->getRunPropertiesOfFieldCharScope($index);
+            }
+            if ($this->runPropertiesInFieldCharScope === false) {
+                throw new \UnexpectedValueException('No w:t or w:instrText tag found in paragraph after fldCharType="begin"');
+            }
+
+            // Inherit run-properties (from 1st w:t or w:instrText inside current fieldChar-scope)
+            $this->runsInCurrentParagraph[$index] = preg_replace(self::PATTERN_RUN_PROPERTIES, $this->runPropertiesInFieldCharScope, $this->runsInCurrentParagraph[$index]);
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * @param  int  $indexRun
+     * @return bool             Is $this->runsInCurrentParagraph[$indexRun] within a w:fldChar-scope (fldCharType="begin" until fldCharType="end")?
+     */
+    public function updateIsWithinFieldCharScope($indexRun)
+    {
+        if (!$this->isWithinFieldCharScope) {
+            $this->isWithinFieldCharScope = strpos($this->runsInCurrentParagraph[$indexRun], self::STRING_FLDCHAR_TYPE_BEGIN) !== false;
+        }
+        if (!$this->isWithinFieldCharScope) {
+            return false;
+        }
+
+        // While inside: detect end of fldChar-scope
+        $this->isFieldCharScopeEndingInCurrentRun = strpos($this->runsInCurrentParagraph[$indexRun],     self::STRING_FLDCHAR_TYPE_END) !== false;
+        $isFieldCharScopeEndingInNextRun          = strpos($this->runsInCurrentParagraph[$indexRun + 1], self::STRING_FLDCHAR_TYPE_END) !== false;
+
+        if ($this->isFieldCharScopeEndingInCurrentRun || $isFieldCharScopeEndingInNextRun) {
+            $this->isWithinFieldCharScope        = false;
+            $this->runPropertiesInFieldCharScope = false;
+        }
+
+        return $this->isWithinFieldCharScope;
+    }
+
+    /**
+     * @param  int      $indexStart
+     * @param  string   $patternTagRunPropertiesSource
      * @return bool|string
      */
-    protected function getRunPropertiesOfFieldCharScope($indexRunStart, $patternTagRunPropertiesSource = null)
+    protected function getRunPropertiesOfFieldCharScope($indexStart, $patternTagRunPropertiesSource = null)
     {
         if (null === $patternTagRunPropertiesSource) {
+            // Default cycle: look for <w:t> to take run-properties from
             $patternTagRunPropertiesSource = self::STRING_TAG_W_TEXT_OPEN;
         }
 
         $amountRunsInParagraph = count($this->runsInCurrentParagraph);
-        for ($indexRun = $indexRunStart; $indexRun < $amountRunsInParagraph; $indexRun++) {
+        for ($index = $indexStart; $index < $amountRunsInParagraph; $index++) {
             // Look forward to next w:t Tag
-            if (strpos($this->runsInCurrentParagraph[$indexRun], $patternTagRunPropertiesSource) !== false) {
+            if (strpos($this->runsInCurrentParagraph[$index], $patternTagRunPropertiesSource) !== false) {
                 // Set runPropertiesCurrent = rPr of w:t
-                preg_match(self::PATTERN_RUN_PROPERTIES, $this->runsInCurrentParagraph[$indexRun], $runProperties);
+                preg_match(self::PATTERN_RUN_PROPERTIES, $this->runsInCurrentParagraph[$index], $runProperties);
                 return $runProperties[0];
             }
 
-            if (strpos($this->runsInCurrentParagraph[$indexRun], self::STRING_FLDCHAR_TYPE_END) !== false) {
+            if (strpos($this->runsInCurrentParagraph[$index], self::STRING_FLDCHAR_TYPE_END) !== false) {
                 break;
             }
         }
 
-        if ($this->runPropertiesInFieldCharScope === false && $patternTagRunPropertiesSource === self::STRING_TAG_W_TEXT_OPEN) {
-            return $this->getRunPropertiesOfFieldCharScope($indexRunStart, self::STRING_TAG_W_INSTR_TEXT_OPEN);
-        }
-
-        return false;
+        // If default cycle failed: look for <w:instrText> to take run-properties from
+        return $this->runPropertiesInFieldCharScope === false && $patternTagRunPropertiesSource === self::STRING_TAG_W_TEXT_OPEN
+            ? $this->getRunPropertiesOfFieldCharScope($indexStart, self::STRING_TAG_W_INSTR_TEXT_OPEN)
+            : false;
     }
 }
