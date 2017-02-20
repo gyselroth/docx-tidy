@@ -39,7 +39,12 @@ class DocxTidy
     const PATTERN_W_HINT     = '\sw:hint="\w+"';
     const PATTERN_EMPTY_TAG  = '<w:([a-z]+)><\/w:([a-z]+)>';
 
-    const STRING_SPACE_PRESERVE = ' xml:space="preserve"';
+    const STRING_SPACE_PRESERVE     = ' xml:space="preserve"';
+    const STRING_FLDCHAR_TYPE_BEGIN = 'fldCharType="begin"';
+    const STRING_FLDCHAR_TYPE_END   = 'fldCharType="end"';
+
+    /** @var array */
+    private $mergeableTagTypes = ['w:t', 'w:instrText'];
 
     /** @var array  Array of content of runs (w/o run-opening tag) */
     private $runsInCurrentParagraph;
@@ -47,7 +52,8 @@ class DocxTidy
     /** @var array  Opening tags of runs (which the current paragraph was exploded by) */
     private $runOpenTagsInCurrentParagraph;
 
-    private $mergeableTagTypes = ['w:t', 'w:instrText'];
+    /** @var bool   Flag whether parser iteration is currently within (tags contained inside) a fieldCharacter scope (begin...end) */
+    private $isWithinFieldCharScope = false;
 
     /**
      * Constructor
@@ -289,10 +295,28 @@ class DocxTidy
         $runPropertiesCurrent = $runProperties[$indexRun];
         $runPropertiesNext    = $runProperties[$indexRun + 1];
 
+        if (!$this->isWithinFieldCharScope) {
+            // While within scope of fieldChar (begin...end): all tags inherit run-properties set by <w:fldChar fldCharType="begin">
+            $this->isWithinFieldCharScope = strpos($this->runsInCurrentParagraph[$indexRun], self::STRING_FLDCHAR_TYPE_BEGIN) !== false;
+        }
+
+        $fieldCharScopeEndsInCurrentRun = strpos($this->runsInCurrentParagraph[$indexRun],     self::STRING_FLDCHAR_TYPE_END) !== false;
+        $fieldCharScopeEndsInNextRun    = strpos($this->runsInCurrentParagraph[$indexRun + 1], self::STRING_FLDCHAR_TYPE_END) !== false;
+        if ($fieldCharScopeEndsInCurrentRun || $fieldCharScopeEndsInNextRun) {
+            // Detect end of fldChar-scope
+            $this->isWithinFieldCharScope = false;
+        }
+
+        if ($this->isWithinFieldCharScope && !$fieldCharScopeEndsInCurrentRun) {
+            // inherit run-properties of fldChar-scope (unless scope spans only this sole run)
+            $runPropertiesNext = $runPropertiesCurrent;
+        }
+
         if ($runPropertiesCurrent !== $runPropertiesNext && $runPropertiesNext !== null) {
             return false;
         }
-        // Following run's Run-properties are identical to current
+
+        // Following run's Run-properties are identical (or inherited while inside fldChar-scope) to current
         // Remove: 1. close-tag of current run, 2. open-tag of next run, 3. run-properties of next run
         $this->runsInCurrentParagraph[$indexRun]     = preg_replace(self::PATTERN_RUN_CLOSE, '', $this->runsInCurrentParagraph[$indexRun]);
         $this->runsInCurrentParagraph[$indexRun + 1] = preg_replace(self::PATTERN_RUN_OPEN, '', $this->runsInCurrentParagraph[$indexRun + 1]);
