@@ -1,6 +1,13 @@
 DocxTidy - Changelog
 ====================
 
+
+Version 0.3.0 - not implemented/released yet
+--------------------------------------------
+
+* Added: all tags surrounded by fldCharType="begin" and fldCharType="end" inherit font of run w/ fldCharType="begin"   
+
+
 Version 0.2.0 - released 2017/02/20
 -----------------------------------
 
