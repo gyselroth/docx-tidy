@@ -28,8 +28,8 @@ Please Note
 * By merging segmented tags, DocxTidy removes versioning/editing history information
 * When run with default settings, DocxTidy removes spellchecking flags ("noProof", "proofErr", "lang")
 * DocxTidy removes all xml:space="preserve" flags and re-inserts xml:space="preserve" into all &lt;w:t&gt; and &lt;w:instrText&gt; tags
-* To standardise the run properties DocxTidy deletes the font hints
-* After unifying the runs and removing the spellchecking flags DocxTidy also deletes the resulting empty tags
+* To standardize run properties, DocxTidy deletes any font hints
+* After unifying consecutive runs w/ identical properties and removing any spellchecking flags, DocxTidy removes any resulting empty tags
 
 This library is distributed on an “AS IS” BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, 
 either express or implied.

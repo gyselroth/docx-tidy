@@ -121,9 +121,12 @@ class DocxTidy
     }
 
     /**
-     * @param string      $docxPath
-     * @param string|null $outputPath
-     * @param string|null $removePattern
+     * @param  string $docxPath
+     * @param  string|null $outputPath
+     * @param  string|null $removePattern
+     * @return bool
+     * @throws \Exception
+     * @throws \InvalidArgumentException
      */
     public function tidyDocx($docxPath, $outputPath = null, $removePattern = null)
     {
@@ -131,12 +134,18 @@ class DocxTidy
 
         foreach ($xmlFiles as $xmlFile) {
             $xmlContent = file_get_contents($xmlFile);
-            $tidyXml    = $this->tidyXml($xmlContent, $removePattern);
+            if (false === $xmlContent) {
+                throw new \Exception('Failed reading XML from file: ' . $xmlFile);
+            }
 
-            file_put_contents($xmlFile, $tidyXml);
+            $tidyXml = $this->tidyXml($xmlContent, $removePattern);
+
+            if (false === file_put_contents($xmlFile, $tidyXml)) {
+                throw new \Exception('Failed writing XML to file: ' . $xmlFile);
+            }
         }
 
-        DocxZip::zipFilesToDocx($docxPath, $outputPath);
+        return DocxZip::zipFilesToDocx($docxPath, $outputPath);
     }
 
     /**

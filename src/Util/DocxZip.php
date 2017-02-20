@@ -20,14 +20,14 @@ use ZipArchive;
 
 class DocxZip
 {
-
     /**
-     * @param string $docxPath
+     * @param  string $docxPath
      * @return array
+     * @throws \Exception
      */
     public static function unzipDocx($docxPath)
     {
-        $extractedFiles = self::filenameWithoutExtension($docxPath);
+        $extractedFiles = pathinfo($docxPath, PATHINFO_FILENAME);
         $zipPath        = $extractedFiles . '.zip';
         copy($docxPath, $zipPath);
         
@@ -41,6 +41,9 @@ class DocxZip
 
         $xmlLocation   = $extractedFiles . '/word/';
         $folderContent = scandir($xmlLocation);
+        if (false === $folderContent) {
+            throw new \Exception('Failed reading directory: ' . $xmlLocation);
+        }
 
         $xmlFiles = [];
 
@@ -56,8 +59,10 @@ class DocxZip
     }
 
     /**
-     * @param string      $docxPath
-     * @param string|null $outputPath
+     * @param  string       $docxPath
+     * @param  string|null  $outputPath
+     * @return bool
+     * @throws \Exception
      */
     public static function zipFilesToDocx($docxPath, $outputPath = null)
     {
@@ -68,7 +73,7 @@ class DocxZip
             unlink($outputZip);
         }
 
-        $extractedFiles = self::filenameWithoutExtension($docxPath);
+        $extractedFiles = pathinfo($docxPath, PATHINFO_FILENAME);
 
         $zipArchive = new ZipArchive();
         $zipArchive->open($outputZip, ZipArchive::CREATE);
@@ -87,6 +92,9 @@ class DocxZip
                 }
 
                 $file = realpath($file);
+                if (false === $file) {
+                    throw new \Exception('Permission error: failed getting realpath: ' . $file);
+                }
 
                 if (is_dir($file) === true) {
                     $zipArchive->addEmptyDir(str_replace($extractedFiles . DIRECTORY_SEPARATOR, '', $file . DIRECTORY_SEPARATOR));
@@ -106,21 +114,13 @@ class DocxZip
             unlink($outputDocx);
         }
 
-        rename($outputZip, $outputDocx);
+        return rename($outputZip, $outputDocx);
     }
 
     /**
-     * @param string $filename
-     * @return string
-     */
-    public static function filenameWithoutExtension($filename)
-    {
-        return substr($filename, 0, strrpos($filename, '.'));
-    }
-
-    /**
-     * @param string $directory
+     * @param  string   $directory
      * @return bool
+     * @throws \Exception
      */
     public static function rmdirRecursive($directory)
     {
@@ -132,7 +132,12 @@ class DocxZip
             return unlink($directory);
         }
 
-        foreach (scandir($directory) as $item) {
+        $items = scandir($directory);
+        if (false === $items) {
+            throw new \Exception('Permission error: failed reading directory: ' . $directory);
+        }
+
+        foreach ($items as $item) {
             if ($item === '.' || $item === '..') {
                 continue;
             }
@@ -140,7 +145,6 @@ class DocxZip
             if (!self::rmdirRecursive($directory . DIRECTORY_SEPARATOR . $item)) {
                 return false;
             }
-
         }
 
         return rmdir($directory);
