@@ -1,8 +1,8 @@
 DocxTidy - Changelog
 ====================
 
-Version 0.2.0 - not fully implemented/released yet
---------------------------------------------------
+Version 0.2.0 - released 2017/02/20
+-----------------------------------
 
 * Added: Tidy full DOCX including unpack and re-archive
 * Added: Usage examples
