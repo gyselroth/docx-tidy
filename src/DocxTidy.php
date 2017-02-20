@@ -78,6 +78,7 @@ class DocxTidy
      * @param  string       $xml
      * @param  array|string $removePattern
      * @return string
+     * @throws \UnexpectedValueException
      * @throws \InvalidArgumentException
      */
     public function tidyXml($xml, $removePattern = null)
@@ -116,10 +117,10 @@ class DocxTidy
                     }
 
                     $amountElementsMerged = $this->mergeRunElements($amountRunsInCurrentParagraph);
-                } elseif($amountRunsInCurrentParagraph === 0) {
+                }/* elseif($amountRunsInCurrentParagraph === 0) {
                     $paragraphs[$indexParagraph]        = '';
                     $paragraphOpenTags[$indexParagraph] = '';
-                }
+                }*/
 
                 // Update runs in current paragraph w/ merged runs
                 $paragraphs[$indexParagraph] = DocxXml::implodeWithGlues($this->runsInCurrentParagraph, $this->runOpenTagsInCurrentParagraph);
@@ -290,6 +291,7 @@ class DocxTidy
      *
      * @param  int $indexRun
      * @return bool
+     * @throws \UnexpectedValueException
      */
     protected function mergeCurrentRunWithNext($indexRun)
     {
@@ -303,8 +305,10 @@ class DocxTidy
         $runPropertiesCurrent = $runProperties[$indexRun];
         $runPropertiesNext    = $runProperties[$indexRun + 1];
 
+        // 1. Check: within fldChar-scope?
+        // 2. Update run-properties of scope (if within scope: fetch / else: set to false)
         if ($this->updateRunPropertiesInFieldCharScope($indexRun)) {
-            $runPropertiesNext = $runPropertiesCurrent = $this->runPropertiesInFieldCharScope;
+            $runPropertiesCurrent = $runPropertiesNext = $this->runPropertiesInFieldCharScope;
         }
 
         if ($runPropertiesCurrent !== $runPropertiesNext && $runPropertiesNext !== null) {
@@ -312,25 +316,29 @@ class DocxTidy
         }
 
         // Following run's run-properties are identical (or inherited while inside fldChar-scope) to current
-        // Remove: 1. close-tag of current run, 2. open-tag of next run, 3. run-properties of next run
-        $this->runsInCurrentParagraph[$indexRun]     = preg_replace(self::PATTERN_RUN_CLOSE,      '', $this->runsInCurrentParagraph[$indexRun]);
 
+        // 1. Remove close-tag (</w:r>) of current run
+        $this->runsInCurrentParagraph[$indexRun]     = substr($this->runsInCurrentParagraph[$indexRun], 0, -6);
+
+        // 2. Remove run-open of next run
         $this->runsInCurrentParagraph[$indexRun + 1] = preg_replace(self::PATTERN_RUN_OPEN,       '', $this->runsInCurrentParagraph[$indexRun + 1]);
+        // 3. Remove run-properties of next run
         $this->runsInCurrentParagraph[$indexRun + 1] = preg_replace(self::PATTERN_RUN_PROPERTIES, '', $this->runsInCurrentParagraph[$indexRun + 1]);
 
-        // Move the two merged runs into the 2nd of them, so it can be compared/merged w/ its successor
+        // 4. Move the two merged runs into the 2nd one of them, so it can be compared/merged w/ its successor
         $this->runsInCurrentParagraph[$indexRun + 1] = $this->runsInCurrentParagraph[$indexRun] . $this->runsInCurrentParagraph[$indexRun + 1];
         $this->runsInCurrentParagraph[$indexRun]     = '';
 
-        // Remove run open-tag of merged run
+        // 5. Remove open-tag of next run(openTag @note index is 1 less than inside runs-array)
         $this->runOpenTagsInCurrentParagraph[$indexRun] = '';
 
         return true;
     }
 
     /**
-     * @param  int  $index
+     * @param  int $index
      * @return bool         Is within fldChar-scope (and did update run-properties at given index)?
+     * @throws \UnexpectedValueException
      */
     protected function updateRunPropertiesInFieldCharScope($index)
     {
@@ -349,6 +357,9 @@ class DocxTidy
 
             // Inherit run-properties (from 1st w:t or w:instrText inside current fieldChar-scope)
             $this->runsInCurrentParagraph[$index] = preg_replace(self::PATTERN_RUN_PROPERTIES, $this->runPropertiesInFieldCharScope, $this->runsInCurrentParagraph[$index]);
+            if (null === $this->runsInCurrentParagraph[$index]) {
+                throw new \UnexpectedValueException('Failed replace run-properties in: ' . $this->runsInCurrentParagraph[$index]);
+            }
 
             return true;
         }
