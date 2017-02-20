@@ -5,7 +5,7 @@ DocxTidy - Changelog
 Version 0.3.0 - not implemented/released yet
 --------------------------------------------
 
-* Added: all tags surrounded by fldCharType="begin" and fldCharType="end" inherit font of run w/ fldCharType="begin"   
+* Added: All tags within scope bordered by fldCharType="begin" to fldCharType="end" inherit run-properties of first w:t tag inside that paragraph   
 
 
 Version 0.2.0 - released 2017/02/20
