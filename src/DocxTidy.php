@@ -102,8 +102,8 @@ class DocxTidy
         for ($indexParagraph = 1; $indexParagraph < $amountParagraphs; $indexParagraph++) {
             // First item is XML and document meta data, NOT a paragraph
             do {
-                $amountRunsMerged     = 0;
-                $amountElementsMerged = 0;
+                $amountRunsMerged             = $amountElementsMerged                = 0;
+                $this->isWithinFieldCharScope = $this->runPropertiesInFieldCharScope = false;
 
                 // Collect all runs into array
                 $this->runsInCurrentParagraph = DocxXml::preg_split_with_matches(self::PATTERN_RUN_OPEN, $paragraphs[$indexParagraph], $this->runOpenTagsInCurrentParagraph);
@@ -308,6 +308,9 @@ class DocxTidy
         // 1. Check: within fldChar-scope?
         // 2. Update run-properties of scope (if within scope: fetch / else: set to false)
         if ($this->updateRunPropertiesInFieldCharScope($indexRun)) {
+            // Inherit run-properties (from 1st w:t or w:instrText inside current fieldChar-scope)
+            $this->runsInCurrentParagraph[$indexRun] = preg_replace(self::PATTERN_RUN_PROPERTIES, $this->runPropertiesInFieldCharScope, $this->runsInCurrentParagraph[$indexRun]);
+
             $runPropertiesCurrent = $runPropertiesNext = $this->runPropertiesInFieldCharScope;
         }
 
@@ -356,7 +359,6 @@ class DocxTidy
             }
 
             // Inherit run-properties (from 1st w:t or w:instrText inside current fieldChar-scope)
-            $this->runsInCurrentParagraph[$index] = preg_replace(self::PATTERN_RUN_PROPERTIES, $this->runPropertiesInFieldCharScope, $this->runsInCurrentParagraph[$index]);
             if (null === $this->runsInCurrentParagraph[$index]) {
                 throw new \UnexpectedValueException('Failed replace run-properties in: ' . $this->runsInCurrentParagraph[$index]);
             }
@@ -374,17 +376,19 @@ class DocxTidy
     public function updateIsWithinFieldCharScope($indexRun)
     {
         if (!$this->isWithinFieldCharScope) {
+            // Detect entering field character scope
             $this->isWithinFieldCharScope = strpos($this->runsInCurrentParagraph[$indexRun], self::STRING_FLDCHAR_TYPE_BEGIN) !== false;
         }
         if (!$this->isWithinFieldCharScope) {
+            $this->runPropertiesInFieldCharScope = false;
+
             return false;
         }
 
         // While inside: detect end of fldChar-scope
-        $this->isFieldCharScopeEndingInCurrentRun = strpos($this->runsInCurrentParagraph[$indexRun],     self::STRING_FLDCHAR_TYPE_END) !== false;
-        $isFieldCharScopeEndingInNextRun          = strpos($this->runsInCurrentParagraph[$indexRun + 1], self::STRING_FLDCHAR_TYPE_END) !== false;
+        $this->isFieldCharScopeEndingInCurrentRun = strpos($this->runsInCurrentParagraph[$indexRun], self::STRING_FLDCHAR_TYPE_END) !== false;
 
-        if ($this->isFieldCharScopeEndingInCurrentRun || $isFieldCharScopeEndingInNextRun) {
+        if ($this->isFieldCharScopeEndingInCurrentRun) {
             $this->isWithinFieldCharScope        = false;
             $this->runPropertiesInFieldCharScope = false;
         }
