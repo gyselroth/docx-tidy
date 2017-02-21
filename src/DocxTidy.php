@@ -19,6 +19,8 @@
 
 namespace DocxTidy;
 
+use DocxTidy\Exception\FileReadException;
+use DocxTidy\Exception\FileWriteException;
 use DocxTidy\Util\DocxXml;
 use DocxTidy\Util\DocxZip;
 
@@ -137,12 +139,16 @@ class DocxTidy
     }
 
     /**
-     * @param  string $docxPath
-     * @param  string|null $outputPath
-     * @param  string|null $removePattern
+     * @param  string       $docxPath
+     * @param  string|null  $outputPath
+     * @param  string|null  $removePattern
      * @return bool
-     * @throws \Exception
+     * @throws \DocxTidy\Exception\DirectoryRealPathException
+     * @throws \DocxTidy\Exception\DirectoryReadException
+     * @throws \UnexpectedValueException
      * @throws \InvalidArgumentException
+     * @throws \DocxTidy\Exception\FileReadException
+     * @throws \DocxTidy\Exception\FileWriteException
      */
     public function tidyDocx($docxPath, $outputPath = null, $removePattern = null)
     {
@@ -151,13 +157,13 @@ class DocxTidy
         foreach ($xmlFiles as $xmlFile) {
             $xmlContent = file_get_contents($xmlFile);
             if (false === $xmlContent) {
-                throw new \Exception('Failed reading XML from file: ' . $xmlFile);
+                throw new FileReadException($xmlFile);
             }
 
             $tidyXml = $this->tidyXml($xmlContent, $removePattern);
 
             if (false === file_put_contents($xmlFile, $tidyXml)) {
-                throw new \Exception('Failed writing XML to file: ' . $xmlFile);
+                throw new FileWriteException($xmlFile);
             }
         }
 

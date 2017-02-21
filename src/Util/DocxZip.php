@@ -14,6 +14,8 @@
 
 namespace DocxTidy\Util;
 
+use DocxTidy\Exception\DirectoryReadException;
+use DocxTidy\Exception\DirectoryRealPathException;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use ZipArchive;
@@ -21,9 +23,9 @@ use ZipArchive;
 class DocxZip
 {
     /**
-     * @param  string $docxPath
+     * @param  string   $docxPath
      * @return array
-     * @throws \Exception
+     * @throws \DocxTidy\Exception\DirectoryReadException
      */
     public static function unzipDocx($docxPath)
     {
@@ -42,7 +44,7 @@ class DocxZip
         $xmlLocation   = $extractedFiles . '/word/';
         $folderContent = scandir($xmlLocation);
         if (false === $folderContent) {
-            throw new \Exception('Failed reading directory: ' . $xmlLocation);
+            throw new DirectoryReadException($xmlLocation);
         }
 
         $xmlFiles = [];
@@ -62,7 +64,8 @@ class DocxZip
      * @param  string       $docxPath
      * @param  string|null  $outputPath
      * @return bool
-     * @throws \Exception
+     * @throws \DocxTidy\Exception\DirectoryRealPathException
+     * @throws \DocxTidy\Exception\DirectoryReadException
      */
     public static function zipFilesToDocx($docxPath, $outputPath = null)
     {
@@ -93,7 +96,7 @@ class DocxZip
 
                 $file = realpath($file);
                 if (false === $file) {
-                    throw new \Exception('Permission error: failed getting realpath: ' . $file);
+                    throw new DirectoryRealPathException($file);
                 }
 
                 if (is_dir($file) === true) {
@@ -118,9 +121,9 @@ class DocxZip
     }
 
     /**
-     * @param  string   $directory
+     * @param  string $directory
      * @return bool
-     * @throws \Exception
+     * @throws \DocxTidy\Exception\DirectoryReadException
      */
     public static function rmdirRecursive($directory)
     {
@@ -134,7 +137,7 @@ class DocxZip
 
         $items = scandir($directory);
         if (false === $items) {
-            throw new \Exception('Permission error: failed reading directory: ' . $directory);
+            throw new DirectoryReadException($directory);
         }
 
         foreach ($items as $item) {
