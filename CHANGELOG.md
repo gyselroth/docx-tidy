@@ -2,8 +2,8 @@ DocxTidy - Changelog
 ====================
 
 
-Version 0.4.0 - not released yet
---------------------------------
+Version 0.4.0 - released 2017/02/21
+-----------------------------------
 * Changed: All runs in sequences of runs from fldCharType="begin" until fildCharType="end" are merged into 1 run, but not merged w/ other runs
 
 

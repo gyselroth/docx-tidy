@@ -119,10 +119,7 @@ class DocxTidy
                     }
 
                     $amountElementsMerged = $this->mergeRunElements($amountRunsInCurrentParagraph);
-                }/* elseif($amountRunsInCurrentParagraph === 0) {
-                    $paragraphs[$indexParagraph]        = '';
-                    $paragraphOpenTags[$indexParagraph] = '';
-                }*/
+                }
 
                 // Update runs in current paragraph w/ merged runs
                 $paragraphs[$indexParagraph] = DocxXml::implodeWithGlues($this->runsInCurrentParagraph, $this->runOpenTagsInCurrentParagraph);
@@ -301,6 +298,13 @@ class DocxTidy
      */
     protected function mergeCurrentRunWithNext($indexRun)
     {
+        $nextRunStartsFieldCharScope  = strpos($this->runsInCurrentParagraph[$indexRun + 1], self::STRING_FLDCHAR_TYPE_BEGIN) !== false;
+        $currentRunEndsFieldCharScope = strpos($this->runsInCurrentParagraph[$indexRun], self::STRING_FLDCHAR_TYPE_END) !== false;
+        if ($nextRunStartsFieldCharScope || $currentRunEndsFieldCharScope)  {
+            // Keep fldChar-scope runs (=from fldCharType="begin" to fldCharType="end") in one exclusive run
+            return false;
+        }
+
         // Extract run properties
         $runProperties = DocxXml::preg_match_array($this->runsInCurrentParagraph, self::PATTERN_RUN_PROPERTIES);
 
