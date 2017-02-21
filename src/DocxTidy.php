@@ -108,6 +108,7 @@ class DocxTidy
                 $this->isWithinFieldCharScope = $this->runPropertiesInFieldCharScope = false;
 
                 // Collect all runs into array
+                // @todo    improve split+merge: juncture must be in-between 2 subsequent runs (currently ignores other elements in-between </w:r><ELEMENTS><w:r>)
                 $this->runsInCurrentParagraph = DocxXml::preg_split_with_matches(self::PATTERN_RUN_OPEN, $paragraphs[$indexParagraph], $this->runOpenTagsInCurrentParagraph);
                 $amountRunsInCurrentParagraph = count($this->runsInCurrentParagraph);
 
@@ -298,10 +299,7 @@ class DocxTidy
      */
     protected function mergeCurrentRunWithNext($indexRun)
     {
-        $nextRunStartsFieldCharScope  = strpos($this->runsInCurrentParagraph[$indexRun + 1], self::STRING_FLDCHAR_TYPE_BEGIN) !== false;
-        $currentRunEndsFieldCharScope = strpos($this->runsInCurrentParagraph[$indexRun], self::STRING_FLDCHAR_TYPE_END) !== false;
-        if ($nextRunStartsFieldCharScope || $currentRunEndsFieldCharScope)  {
-            // Keep fldChar-scope runs (=from fldCharType="begin" to fldCharType="end") in one exclusive run
+        if (!$this->areRunsMergeable($indexRun)) {
             return false;
         }
 
@@ -320,7 +318,6 @@ class DocxTidy
         if ($this->updateRunPropertiesInFieldCharScope($indexRun)) {
             // Inherit run-properties (from 1st w:t or w:instrText inside current fieldChar-scope)
             $this->runsInCurrentParagraph[$indexRun] = preg_replace(self::PATTERN_RUN_PROPERTIES, $this->runPropertiesInFieldCharScope, $this->runsInCurrentParagraph[$indexRun]);
-
             $runPropertiesCurrent = $runPropertiesNext = $this->runPropertiesInFieldCharScope;
         }
 
@@ -346,6 +343,19 @@ class DocxTidy
         $this->runOpenTagsInCurrentParagraph[$indexRun] = '';
 
         return true;
+    }
+
+    /**
+     * @param  int  $index
+     * @return bool
+     */
+    private function areRunsMergeable($index)
+    {
+        $nextRunStartsFieldCharScope  = strpos($this->runsInCurrentParagraph[$index + 1], self::STRING_FLDCHAR_TYPE_BEGIN) !== false;
+        $currentRunEndsFieldCharScope = strpos($this->runsInCurrentParagraph[$index],     self::STRING_FLDCHAR_TYPE_END) !== false;
+
+        // Keep fldChar-scope runs (=from fldCharType="begin" to fldCharType="end") in one exclusive run
+        return !$nextRunStartsFieldCharScope && !$currentRunEndsFieldCharScope;
     }
 
     /**

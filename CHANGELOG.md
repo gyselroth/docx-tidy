@@ -4,6 +4,7 @@ DocxTidy - Changelog
 
 Version 0.4.1 - not released yet
 --------------------------------
+* Added: Merging of runs was ignoring other elements between closing of one and opening of next run
 * Bugfix: Mergig runs ending w/ bookmarks was invalidating bookmark XML
 
 
