@@ -2,8 +2,13 @@ DocxTidy - Changelog
 ====================
 
 
-Version 0.3.0 - not implemented/released yet
---------------------------------------------
+Version 0.4.0 - not released yet
+--------------------------------
+* Changed: All runs in sequences of runs from fldCharType="begin" until fildCharType="end" are merged into 1 run, but not merged w/ other runs
+
+
+Version 0.3.0 - released 2017/02/21
+-----------------------------------
 
 * Added: All tags within scope bordered by fldCharType="begin" to fldCharType="end" inherit run-properties of first w:t tag inside that paragraph   
 * Added: Specific exceptions   
