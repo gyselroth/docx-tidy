@@ -331,7 +331,7 @@ class DocxTidy
         // Following run's run-properties are identical (or inherited while inside fldChar-scope) to current
 
         // 1. Remove close-tag (</w:r>) of current run
-        $this->runsInCurrentParagraph[$indexRun]     = substr($this->runsInCurrentParagraph[$indexRun], 0, -6);
+        $this->runsInCurrentParagraph[$indexRun]     = preg_replace(self::PATTERN_RUN_CLOSE,       '', $this->runsInCurrentParagraph[$indexRun]);
 
         // 2. Remove run-open of next run
         $this->runsInCurrentParagraph[$indexRun + 1] = preg_replace(self::PATTERN_RUN_OPEN,       '', $this->runsInCurrentParagraph[$indexRun + 1]);
