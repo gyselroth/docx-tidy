@@ -6,7 +6,7 @@
  * Copyright (c) 2017 gyselroth™  (http://www.gyselroth.com)
  *
  * @package DocxTidy
- * @version 0.3.0
+ * @version 0.4.0
  * @link    https://github.com/gyselroth/docx-tidy
  * @author  gyselroth™  (http://www.gyselroth.com)
  * @license https://www.apache.org/licenses/LICENSE-2.0 Apache 2.0 license
@@ -24,15 +24,20 @@ class DocxXml {
     const PATTERN_ELEMENT_TAG_UNCLOSED = '/<(\/)?(w:[a-z]+)/i';
 
     /**
-     * @param  string $pattern
-     * @param  string $subject
-     * @param  array  &$matches
+     * @param  string   $pattern
+     * @param  string   $subject
+     * @param  array    &$matches
      * @return array
+     * @throws \InvalidArgumentException
      * @note   First item of result array wasn't necessarily prefixed w/ given pattern before split
      */
     public static function preg_split_with_matches($pattern, $subject, &$matches)
     {
-        preg_match_all($pattern, $subject, $matches);
+        $amountMatches = preg_match_all($pattern, $subject, $matches);
+        if ($amountMatches === false) {
+            throw new \InvalidArgumentException('preg_match_all failed - ' . 'pattern: ' . $pattern . ', subject: ' . $subject);
+        }
+
         $matches = array_shift($matches);
 
         return preg_split($pattern, $subject);
