@@ -2,10 +2,15 @@ DocxTidy - Changelog
 ====================
 
 
+Version 0.4.2 - released 2017/02/22
+-----------------------------------
+* Bugfix: Undefined index error was thrown if run in field char scope had no run properties
+
+
 Version 0.4.1 - released 2017/02/22
 -----------------------------------
 * Bugfix: Merging of runs was ignoring (+invalidating) other elements between closing of one and opening of next run
-* Bugfix: Mergig runs ending w/ bookmarks was invalidating bookmark XML
+* Bugfix: Merging runs ending w/ bookmarks was invalidating bookmark XML
 
 
 Version 0.4.0 - released 2017/02/21
