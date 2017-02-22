@@ -55,7 +55,7 @@ class DocxXml {
     {
         $amountMatches = preg_match_all($pattern, $subject, $matches);
         if ($amountMatches === false) {
-            die('Error in regular expression.');
+            throw new \InvalidArgumentException('Error in regular expression. - ' . 'pattern: ' . $pattern . ', subject: ' . $subject);
         }
 
         return $returnOnlyFullMatches ? $matches[0] : $matches;

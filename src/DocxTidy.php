@@ -443,7 +443,7 @@ class DocxTidy
             if (strpos($this->runsInCurrentParagraph[$index], $patternTagRunPropertiesSource) !== false) {
                 // Set runPropertiesCurrent = rPr of w:t
                 preg_match(self::PATTERN_RUN_PROPERTIES, $this->runsInCurrentParagraph[$index], $runProperties);
-                return $runProperties[0];
+                return empty($runProperties) ? '' : $runProperties[0];
             }
 
             if (strpos($this->runsInCurrentParagraph[$index], self::STRING_FLDCHAR_TYPE_END) !== false) {
