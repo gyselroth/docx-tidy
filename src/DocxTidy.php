@@ -79,6 +79,8 @@ class DocxTidy
     }
 
     /**
+     * Tidy given word XML string
+     *
      * Find and merge successive runs w/ identical runProperties within paragraphs.
      * Within each run: merge successive run elements (<w:t> or <w:instrText>)
      *
@@ -141,6 +143,8 @@ class DocxTidy
     }
 
     /**
+     * Tidy all XML files inside given word DOCX file, save resulting DOCX file overwriting original or given output file
+     *
      * @param  string       $docxPath
      * @param  string|null  $outputPath
      * @param  string|null  $removePattern
@@ -233,6 +237,8 @@ class DocxTidy
     }
 
     /**
+     * Join (<w:t> or <w:instrText> of) given elements that are of the same type in direct succession
+     *
      * @param  array &$elementsInRun
      * @param  array &$elementTagsUnclosed
      * @return int
@@ -267,6 +273,13 @@ class DocxTidy
     }
 
     /**
+     * Assert merge-abiliy of given tags
+     *
+     * 1. Must be not null
+     * 2. Must be of same type
+     * 3. Must be of supported merge-element types (<w:t> or <w:instrText>)
+     * 4. 1st element must be a closing-tag, 2nd element must be an opening tag
+     *
      * @param  string $tag1
      * @param  string $tag2
      * @return bool
@@ -350,6 +363,8 @@ class DocxTidy
     }
 
     /**
+     * Assert merge-ability of runs (at given index and following one)
+     *
      * @param  int  $index
      * @return bool
      */
@@ -368,6 +383,8 @@ class DocxTidy
     }
 
     /**
+     * Fetch and store run-properties to be used on all elements of current fldChar scope (all elements bordered by fldCharacterType="begin" / fldCharacterType="end")
+     *
      * @param  int $index
      * @return bool         Is within fldChar-scope (and did update run-properties at given index)?
      * @throws \UnexpectedValueException
@@ -399,6 +416,8 @@ class DocxTidy
     }
 
     /**
+     * Detect whether parsing-offset enters/leaves scope of fldChar elements (all elements bordered by fldCharacterType="begin" / fldCharacterType="end")
+     *
      * @param  int  $indexRun
      * @return bool             Is $this->runsInCurrentParagraph[$indexRun] within a w:fldChar-scope (fldCharType="begin" until fldCharType="end")?
      */
@@ -426,6 +445,8 @@ class DocxTidy
     }
 
     /**
+     * Get run-properties to be used on all elements of current fldChar scope (all elements bordered by fldCharacterType="begin" / fldCharacterType="end")
+     *
      * @param  int      $indexStart
      * @param  string   $patternTagRunPropertiesSource
      * @return bool|string
@@ -439,9 +460,9 @@ class DocxTidy
 
         $amountRunsInParagraph = count($this->runsInCurrentParagraph);
         for ($index = $indexStart; $index < $amountRunsInParagraph; $index++) {
-            // Look forward to next w:t Tag
+            // Seek next <w:t> Tag
             if (strpos($this->runsInCurrentParagraph[$index], $patternTagRunPropertiesSource) !== false) {
-                // Set runPropertiesCurrent = rPr of w:t
+                // Set runPropertiesCurrent = <w:rPr> of <w:t>
                 preg_match(self::PATTERN_RUN_PROPERTIES, $this->runsInCurrentParagraph[$index], $runProperties);
                 return empty($runProperties) ? '' : $runProperties[0];
             }
