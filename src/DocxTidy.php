@@ -41,11 +41,13 @@ class DocxTidy
     const PATTERN_W_HINT     = '\sw:hint="\w+"';
     const PATTERN_EMPTY_TAG  = '<w:([a-z]+)><\/w:([a-z]+)>';
 
+    const STRING_TAG_RUN_CLOSE         = '</w:r>';
+    const STRING_TAG_W_TEXT_OPEN       = '<w:t>';
+    const STRING_TAG_W_INSTR_TEXT_OPEN = '<w:instrText>';
+
     const STRING_SPACE_PRESERVE        = ' xml:space="preserve"';
     const STRING_FLDCHAR_TYPE_BEGIN    = 'fldCharType="begin"';
     const STRING_FLDCHAR_TYPE_END      = 'fldCharType="end"';
-    const STRING_TAG_W_TEXT_OPEN       = '<w:t>';
-    const STRING_TAG_W_INSTR_TEXT_OPEN = '<w:instrText>';
 
     /** @var array */
     private $mergeableTagTypes = ['w:t', 'w:instrText'];
@@ -65,12 +67,15 @@ class DocxTidy
     /** @var bool|string Properties to be used in (to ensure merge-ability of) all runs inside fieldsCharacter scope */
     private $runPropertiesInFieldCharScope = false;
 
+    /** @var  int */
+    private $lengthTagRunClose;
+
     /**
      * Constructor
      */
     public function __construct()
     {
-
+        $this->lengthTagRunClose = strlen(self::STRING_TAG_RUN_CLOSE);
     }
 
     /**
@@ -108,7 +113,6 @@ class DocxTidy
                 $this->isWithinFieldCharScope = $this->runPropertiesInFieldCharScope = false;
 
                 // Collect all runs into array
-                // @todo    improve split+merge: juncture must be in-between 2 subsequent runs (currently ignores other elements in-between </w:r><ELEMENTS><w:r>)
                 $this->runsInCurrentParagraph = DocxXml::preg_split_with_matches(self::PATTERN_RUN_OPEN, $paragraphs[$indexParagraph], $this->runOpenTagsInCurrentParagraph);
                 $amountRunsInCurrentParagraph = count($this->runsInCurrentParagraph);
 
@@ -351,10 +355,15 @@ class DocxTidy
      */
     private function areRunsMergeable($index)
     {
+        // Ensure 1st item ends w/ closing tag of run
+        if (substr($this->runsInCurrentParagraph[$index], -$this->lengthTagRunClose) !== self::STRING_TAG_RUN_CLOSE) {
+            return false;
+        }
+
+        // Keep fldChar-scope runs (=from fldCharType="begin" to fldCharType="end") in one exclusive run
         $nextRunStartsFieldCharScope  = strpos($this->runsInCurrentParagraph[$index + 1], self::STRING_FLDCHAR_TYPE_BEGIN) !== false;
         $currentRunEndsFieldCharScope = strpos($this->runsInCurrentParagraph[$index],     self::STRING_FLDCHAR_TYPE_END) !== false;
 
-        // Keep fldChar-scope runs (=from fldCharType="begin" to fldCharType="end") in one exclusive run
         return !$nextRunStartsFieldCharScope && !$currentRunEndsFieldCharScope;
     }
 
