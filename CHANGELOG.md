@@ -2,6 +2,11 @@ DocxTidy - Changelog
 ====================
 
 
+Version 0.4.3 - released 2017/03/23
+-----------------------------------
+* Improved: Prevent possible "undefined offset" warning during elements joining
+
+
 Version 0.4.2 - released 2017/02/22
 -----------------------------------
 * Bugfix: Undefined index error was thrown if run in field char scope had no run properties
