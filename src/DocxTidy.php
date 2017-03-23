@@ -250,7 +250,7 @@ class DocxTidy
         $amountElementsInRun = count($elementsInRun);
         $amountMerged        = 0;
         for ($index = 1; $index < $amountElementsInRun; $index++) {
-            if(!$this->areTagsMergeable($elementsInRun[$index], $elementsInRun[$index + 1])) {
+            if(!isset($elementsInRun[$index + 1]) || !$this->areTagsMergeable($elementsInRun[$index], $elementsInRun[$index + 1])) {
                 continue;
             }
             $elementsInRun[$index - 1] .= str_replace(['<w:t>', '<w:instrText>'], '', $elementsInRun[$index + 1]);
