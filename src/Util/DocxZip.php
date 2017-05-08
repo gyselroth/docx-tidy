@@ -22,16 +22,16 @@ use ZipArchive;
 class DocxZip
 {
     /**
-     * @param  string   $docxPath
+     * @param  string $docxPath
      * @return array
      * @throws \DocxTidy\Exception\DirectoryReadException
      */
     public static function unzipDocx($docxPath)
     {
-        $extractedFiles = pathinfo($docxPath, PATHINFO_FILENAME);
+        $extractedFiles = dirname($docxPath) . DIRECTORY_SEPARATOR . pathinfo($docxPath, PATHINFO_FILENAME);
         $zipPath        = $extractedFiles . '.zip';
         copy($docxPath, $zipPath);
-        
+
         self::rmdirRecursive($extractedFiles);
 
         $zipArchive = new ZipArchive();
@@ -49,7 +49,7 @@ class DocxZip
         $xmlFiles = [];
 
         foreach ($folderContent as $file) {
-            if (strrpos($file, '.xml') === 0) {
+            if (pathinfo($file, PATHINFO_EXTENSION) === 'xml') {
                 $xmlFiles[] = $xmlLocation . $file;
             }
         }
@@ -60,9 +60,9 @@ class DocxZip
     }
 
     /**
-     * @param  string       $docxPath
-     * @param  string|null  $outputPath
-     * @return bool
+     * @param  string      $docxPath
+     * @param  string|null $outputPath
+     * @return string|bool
      * @throws \DocxTidy\Exception\DirectoryRealPathException
      * @throws \DocxTidy\Exception\DirectoryReadException
      */
@@ -75,7 +75,7 @@ class DocxZip
             unlink($outputZip);
         }
 
-        $extractedFiles = pathinfo($docxPath, PATHINFO_FILENAME);
+        $extractedFiles = $extractedFiles = dirname($docxPath) . DIRECTORY_SEPARATOR . pathinfo($docxPath, PATHINFO_FILENAME);
 
         $zipArchive = new ZipArchive();
         $zipArchive->open($outputZip, ZipArchive::CREATE);
@@ -107,7 +107,7 @@ class DocxZip
         } elseif (is_file($extractedFiles) === true) {
             $zipArchive->addFile($extractedFiles, basename($extractedFiles));
         }
-        
+
         $zipArchive->close();
 
         self::rmdirRecursive($extractedFiles);
@@ -116,7 +116,8 @@ class DocxZip
             unlink($outputDocx);
         }
 
-        return rename($outputZip, $outputDocx);
+
+        return rename($outputZip, $outputDocx) ? $outputDocx : false;
     }
 
     /**

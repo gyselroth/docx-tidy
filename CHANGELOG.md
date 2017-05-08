@@ -43,3 +43,8 @@ Version 0.1.0 - released 2017/02/15
 -----------------------------------
 
 * Initial release
+
+Version 0.1.1 - released 2017/05/08
+-----------------------------------
+
+* BugFix: Use correct directory paths when unzipping and zipping a docx
