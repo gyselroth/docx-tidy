@@ -101,7 +101,7 @@ class DocxTidy
             } while ($count > 0);
         }
 
-        // Remove all space preserve occurrences as they will be added into the paragraph later
+        // Remove all occurrences of "space preserve", as they will be added into the paragraph later
         $xml = str_replace(self::STRING_SPACE_PRESERVE, '', $xml);
 
         // 1. Collect paragraphs, tidy each paragraph:
