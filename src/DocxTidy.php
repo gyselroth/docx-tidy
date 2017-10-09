@@ -337,7 +337,7 @@ class DocxTidy
             $runPropertiesCurrent = $runPropertiesNext = $this->runPropertiesInFieldCharScope;
         }
 
-        if ($runPropertiesCurrent !== $runPropertiesNext && $runPropertiesNext !== null) {
+        if ($runPropertiesCurrent !== $runPropertiesNext /*&& $runPropertiesNext !== null*/) {
             return false;
         }
 
