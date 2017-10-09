@@ -1,10 +1,17 @@
 DocxTidy - Changelog
 ====================
 
+Version 0.4.5 - released 2017/10/09
+-----------------------------------
+
+* Changed: Commented-out exclude null next-runProperties during successive run merge-ability detection
+
+
 Version 0.4.4 - released 2017/05/08
 -----------------------------------
 
 * BugFix: Use correct directory paths when unzipping and zipping a docx
+
 
 Version 0.4.3 - released 2017/03/23
 -----------------------------------
