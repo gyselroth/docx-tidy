@@ -186,6 +186,7 @@ class DocxTidy
     {
         $amountMergedTotal  = 0;
         // Iterate over runs in current paragraph
+        /** @noinspection ForeachInvariantsInspection */
         for ($indexRun = 0; $indexRun < $amountRunsInCurrentParagraph; $indexRun++) {
             if ('' !== $this->runsInCurrentParagraph[$indexRun]) {
                 // Non-empty run:
@@ -223,10 +224,10 @@ class DocxTidy
      * 1. The list is empty
      * 2. There are contained none or less than two consecutive of any of the handled merge-types
      *
-     * @param  array $elementTagsList     comma-separated list of element-tag openings, ex: <w:pPr,<w:pStyle,<w:spacing,...
+     * @param  string $elementTagsList     comma-separated list of element-tag openings, ex: <w:pPr,<w:pStyle,<w:spacing,...
      * @return bool
      */
-    private static function containsMergeableElements($elementTagsList): bool
+    private static function containsMergeableElements(string $elementTagsList): bool
     {
         /** @noinspection ReturnFalseInspection */
         return '' === $elementTagsList
