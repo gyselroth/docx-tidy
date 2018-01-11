@@ -182,7 +182,7 @@ class DocxTidy
      * @return int
      * @throws \InvalidArgumentException
      */
-    protected function mergeRunElements(int $amountRunsInCurrentParagraph): int
+    private function mergeRunElements(int $amountRunsInCurrentParagraph): int
     {
         $amountMergedTotal  = 0;
         // Iterate over runs in current paragraph
@@ -226,7 +226,7 @@ class DocxTidy
      * @param  array $elementTagsList     comma-separated list of element-tag openings, ex: <w:pPr,<w:pStyle,<w:spacing,...
      * @return bool
      */
-    protected static function containsMergeableElements($elementTagsList): bool
+    private static function containsMergeableElements($elementTagsList): bool
     {
         /** @noinspection ReturnFalseInspection */
         return '' === $elementTagsList
@@ -242,7 +242,7 @@ class DocxTidy
      * @return int
      * @throws \InvalidArgumentException
      */
-    protected function joinElementsUsingUnclosedTagsReference(array &$elementsInRun, array &$elementTagsUnclosed): int
+    private function joinElementsUsingUnclosedTagsReference(array &$elementsInRun, array &$elementTagsUnclosed): int
     {
         // Iterate over element-types (skip 1st (being rPr) and last (does not have a following element that it could be joined w/)
         $amountElementsInRun = \count($elementsInRun);
@@ -277,7 +277,7 @@ class DocxTidy
      * @return bool
      * @throws \UnexpectedValueException
      */
-    protected function mergeCurrentRunWithNext($indexRun): bool
+    private function mergeCurrentRunWithNext($indexRun): bool
     {
         if (!$this->areRunsMergeable($indexRun)) {
             return false;
@@ -354,7 +354,7 @@ class DocxTidy
      * @return bool         Is within fldChar-scope (and did update run-properties at given index)?
      * @throws \UnexpectedValueException
      */
-    protected function updateRunPropertiesInFieldCharScope($index): bool
+    private function updateRunPropertiesInFieldCharScope($index): bool
     {
         if (!$this->updateIsWithinFieldCharScope($index)) {
             return false;
@@ -386,7 +386,7 @@ class DocxTidy
      * @param  int  $indexRun
      * @return bool             Is $this->runsInCurrentParagraph[$indexRun] within a w:fldChar-scope (fldCharType="begin" until fldCharType="end")?
      */
-    public function updateIsWithinFieldCharScope($indexRun): bool
+    private function updateIsWithinFieldCharScope($indexRun): bool
     {
         if (!$this->isWithinFieldCharScope) {
             // Detect entering field character scope
@@ -418,7 +418,7 @@ class DocxTidy
      * @param  string   $patternTagRunPropertiesSource
      * @return bool|string
      */
-    protected function getRunPropertiesOfFieldCharScope($indexStart, $patternTagRunPropertiesSource = null)
+    private function getRunPropertiesOfFieldCharScope($indexStart, $patternTagRunPropertiesSource = null)
     {
         if (null === $patternTagRunPropertiesSource) {
             // Default cycle: look for <w:t> to take run-properties from
