@@ -89,8 +89,8 @@ class DocxTidy
      */
     public function tidyXml(string $xml, $removePattern = null): string
     {
-        if ($removePattern !== false) {
-            if ($removePattern === null) {
+        if (false !== $removePattern) {
+            if (null === $removePattern) {
                 // Default: remove spell-check flags
                 $removePattern = '/' . self::PATTERN_NO_PROOF . '|' . self::PATTERN_PROOF_ERR . '|' . self::PATTERN_LANG . '|' . self::PATTERN_FONTS_HINT . '|' . self::PATTERN_EMPTY_TAG . '|' . self::PATTERN_W_HINT . '/i';
             }
@@ -187,7 +187,7 @@ class DocxTidy
         $amountMergedTotal  = 0;
         // Iterate over runs in current paragraph
         for ($indexRun = 0; $indexRun < $amountRunsInCurrentParagraph; $indexRun++) {
-            if ($this->runsInCurrentParagraph[$indexRun] !== '') {
+            if ('' !== $this->runsInCurrentParagraph[$indexRun]) {
                 // Non-empty run:
                 $elementTagsClosing = DocxXml::preg_split_with_matches(self::PATTERN_ELEMENT_TAG_UNCLOSED, $this->runsInCurrentParagraph[$indexRun], $elementTagsUnclosed);
                 /** @var array $elementTagsUnclosed   ex: [<w:pPr,<w:pStyle,                      <w:t,          </w:pPr ] */
@@ -362,10 +362,10 @@ class DocxTidy
 
         // Inherit run-properties of fldChar-scope (unless scope spans only this sole run)
         if ($this->isWithinFieldCharScope && !$this->isFieldCharScopeEndingInCurrentRun) {
-            if ($this->runPropertiesInFieldCharScope === false) {
+            if (false === $this->runPropertiesInFieldCharScope) {
                 $this->runPropertiesInFieldCharScope = $this->getRunPropertiesOfFieldCharScope($index);
             }
-            if ($this->runPropertiesInFieldCharScope === false) {
+            if (false === $this->runPropertiesInFieldCharScope) {
                 throw new \UnexpectedValueException('No w:t or w:instrText tag found in paragraph after fldCharType="begin"');
             }
 
@@ -442,7 +442,7 @@ class DocxTidy
         }
 
         // If default cycle failed: look for <w:instrText> to take run-properties from
-        return $this->runPropertiesInFieldCharScope === false && $patternTagRunPropertiesSource === self::STRING_TAG_W_TEXT_OPEN
+        return false === $this->runPropertiesInFieldCharScope && self::STRING_TAG_W_TEXT_OPEN === $patternTagRunPropertiesSource
             ? $this->getRunPropertiesOfFieldCharScope($indexStart, self::STRING_TAG_W_INSTR_TEXT_OPEN)
             : false;
     }

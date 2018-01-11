@@ -49,7 +49,7 @@ class DocxZip
         $xmlFiles = [];
 
         foreach ($folderContent as $file) {
-            if (pathinfo($file, PATHINFO_EXTENSION) === 'xml') {
+            if ('xml' === pathinfo($file, PATHINFO_EXTENSION)) {
                 $xmlFiles[] = $xmlLocation . $file;
             }
         }
@@ -82,14 +82,15 @@ class DocxZip
 
         $extractedFiles = str_replace('\\', DIRECTORY_SEPARATOR, realpath($extractedFiles));
 
-        if (is_dir($extractedFiles) === true) {
+        if (is_dir($extractedFiles)) {
             $files    = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($extractedFiles), RecursiveIteratorIterator::SELF_FIRST);
             $pathDots = ['.', '..'];
             foreach ($files as $file) {
                 $file = str_replace('\\', DIRECTORY_SEPARATOR, $file);
 
                 // ignore "." and ".." folders
-                if (in_array(substr($file, strrpos($file, DIRECTORY_SEPARATOR) + 1), $pathDots, true)) {
+                /** @noinspection ReturnFalseInspection */
+                if (\in_array(substr($file, strrpos($file, DIRECTORY_SEPARATOR) + 1), $pathDots, true)) {
                     continue;
                 }
 
@@ -98,13 +99,13 @@ class DocxZip
                     throw new DirectoryRealPathException($file);
                 }
 
-                if (is_dir($file) === true) {
+                if (is_dir($file)) {
                     $zipArchive->addEmptyDir(str_replace($extractedFiles . DIRECTORY_SEPARATOR, '', $file . DIRECTORY_SEPARATOR));
-                } elseif (is_file($file) === true) {
+                } elseif (is_file($file)) {
                     $zipArchive->addFile($file, str_replace($extractedFiles . DIRECTORY_SEPARATOR, '', $file));
                 }
             }
-        } elseif (is_file($extractedFiles) === true) {
+        } elseif (is_file($extractedFiles)) {
             $zipArchive->addFile($extractedFiles, basename($extractedFiles));
         }
 
@@ -130,7 +131,6 @@ class DocxZip
         if (!file_exists($directory)) {
             return true;
         }
-
         if (!is_dir($directory)) {
             return unlink($directory);
         }
@@ -141,10 +141,9 @@ class DocxZip
         }
 
         foreach ($items as $item) {
-            if ($item === '.' || $item === '..') {
+            if ('.' === $item || '..' === $item) {
                 continue;
             }
-
             if (!self::rmdirRecursive($directory . DIRECTORY_SEPARATOR . $item)) {
                 return false;
             }

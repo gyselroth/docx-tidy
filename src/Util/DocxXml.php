@@ -35,7 +35,7 @@ class DocxXml {
     public static function preg_split_with_matches(string $pattern, string $subject, &$matches): array
     {
         $amountMatches = preg_match_all($pattern, $subject, $matches);
-        if ($amountMatches === false) {
+        if (false === $amountMatches) {
             throw new \InvalidArgumentException('preg_match_all failed - ' . 'pattern: ' . $pattern . ', subject: ' . $subject);
         }
 
@@ -56,7 +56,7 @@ class DocxXml {
     public static function getAllPregMatches(string $pattern, string $subject, bool $returnOnlyFullMatches = false): array
     {
         $amountMatches = preg_match_all($pattern, $subject, $matches);
-        if ($amountMatches === false) {
+        if (false === $amountMatches) {
             throw new \InvalidArgumentException('Error in regular expression. - ' . 'pattern: ' . $pattern . ', subject: ' . $subject);
         }
 
@@ -73,11 +73,10 @@ class DocxXml {
      */
     public static function implodeWithGlues(array $pieces, array $glues): string
     {
-        if (\count($glues) === 0) {
+        if (0 === \count($glues)) {
             return implode('', $pieces);
         }
-
-        if (\count($pieces) === 0) {
+        if (0 === \count($pieces)) {
             return '';
         }
 
@@ -132,11 +131,11 @@ class DocxXml {
     public static function getTagLimitingType(string $tag): int
     {
         /** @noinspection ReturnFalseInspection */
-        if (strpos($tag, '<w:') === 0) {
+        if (0 === strpos($tag, '<w:')) {
             return self::TYPE_TAG_LIMITATION_OPEN;
         }
         /** @noinspection ReturnFalseInspection */
-        if (strpos($tag, '</w:') === 0) {
+        if (0 === strpos($tag, '</w:')) {
             return self::TYPE_TAG_LIMITATION_CLOSE;
         }
 
