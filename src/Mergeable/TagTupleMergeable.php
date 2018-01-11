@@ -74,7 +74,7 @@ class TagTupleMergeable
      */
     private function areTagLimitingTypesInMergeableOrder(): bool
     {
-        return DocxXml::getTagLimitingType($this->tag1) === DocxXml::TYPE_TAG_LIMITATION_CLOSE
-            && DocxXml::getTagLimitingType($this->tag2) === DocxXml::TYPE_TAG_LIMITATION_OPEN;
+        return DocxXml::TYPE_TAG_LIMITATION_CLOSE === DocxXml::getTagLimitingType($this->tag1)
+            && DocxXml::TYPE_TAG_LIMITATION_OPEN === DocxXml::getTagLimitingType($this->tag2);
     }
 }
