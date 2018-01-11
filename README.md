@@ -44,7 +44,7 @@ The recommended way to install is via Composer:
 $ composer require gyselroth/docx-tidy
 ```
 
-DocxTidy requires PHP 7.1 since version 0.5.0 (PHP 5.6 until version 0.4.5)
+PHP 7.1 is required since DocxTidy version 0.5.0 (PHP 5.6 until version 0.4.5)
 
 
 Usage
