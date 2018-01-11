@@ -13,14 +13,14 @@
         }
     ],
     "require": {
-        "php":       ">=5.5.0"
+        "php":       ">=7.1.0"
     },
     "autoload": {
         "psr-4": {"DocxTidy\\": "src"}
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "0.2.x-dev"
+            "dev-master": "0.5.x-dev"
         }
     },
     "scripts": {
