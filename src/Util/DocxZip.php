@@ -26,9 +26,9 @@ class DocxZip
      * @return array
      * @throws \DocxTidy\Exception\DirectoryReadException
      */
-    public static function unzipDocx($docxPath)
+    public static function unzipDocx(string $docxPath): array
     {
-        $extractedFiles = dirname($docxPath) . DIRECTORY_SEPARATOR . pathinfo($docxPath, PATHINFO_FILENAME);
+        $extractedFiles = \dirname($docxPath) . DIRECTORY_SEPARATOR . pathinfo($docxPath, PATHINFO_FILENAME);
         $zipPath        = $extractedFiles . '.zip';
         copy($docxPath, $zipPath);
 
@@ -41,13 +41,12 @@ class DocxZip
         $zipArchive->close();
 
         $xmlLocation   = $extractedFiles . '/word/';
-        $folderContent = scandir($xmlLocation);
+        $folderContent = scandir($xmlLocation, SCANDIR_SORT_NONE);
         if (false === $folderContent) {
             throw new DirectoryReadException($xmlLocation);
         }
 
         $xmlFiles = [];
-
         foreach ($folderContent as $file) {
             if ('xml' === pathinfo($file, PATHINFO_EXTENSION)) {
                 $xmlFiles[] = $xmlLocation . $file;
@@ -66,16 +65,16 @@ class DocxZip
      * @throws \DocxTidy\Exception\DirectoryRealPathException
      * @throws \DocxTidy\Exception\DirectoryReadException
      */
-    public static function zipFilesToDocx($docxPath, $outputPath = null)
+    public static function zipFilesToDocx(string $docxPath, $outputPath = null)
     {
-        $outputDocx = empty($outputPath) ? $docxPath : $outputPath;
+        $outputDocx = $outputPath ?? $docxPath;
         $outputZip  = str_replace('.docx', '.zip', $outputDocx);
 
         if (file_exists($outputZip)) {
             unlink($outputZip);
         }
 
-        $extractedFiles = $extractedFiles = dirname($docxPath) . DIRECTORY_SEPARATOR . pathinfo($docxPath, PATHINFO_FILENAME);
+        $extractedFiles = $extractedFiles = \dirname($docxPath) . DIRECTORY_SEPARATOR . pathinfo($docxPath, PATHINFO_FILENAME);
 
         $zipArchive = new ZipArchive();
         $zipArchive->open($outputZip, ZipArchive::CREATE);
@@ -122,33 +121,33 @@ class DocxZip
     }
 
     /**
-     * @param  string $directory
+     * @param  string $path
      * @return bool
      * @throws \DocxTidy\Exception\DirectoryReadException
      */
-    public static function rmdirRecursive($directory)
+    public static function rmdirRecursive(string $path): bool
     {
-        if (!file_exists($directory)) {
+        if (!file_exists($path)) {
             return true;
         }
-        if (!is_dir($directory)) {
-            return unlink($directory);
+        if (!is_dir($path)) {
+            return unlink($path);
         }
 
-        $items = scandir($directory);
+        $items = scandir($path, SCANDIR_SORT_NONE);
         if (false === $items) {
-            throw new DirectoryReadException($directory);
+            throw new DirectoryReadException($path);
         }
 
         foreach ($items as $item) {
             if ('.' === $item || '..' === $item) {
                 continue;
             }
-            if (!self::rmdirRecursive($directory . DIRECTORY_SEPARATOR . $item)) {
+            if (!self::rmdirRecursive($path . DIRECTORY_SEPARATOR . $item)) {
                 return false;
             }
         }
 
-        return rmdir($directory);
+        return rmdir($path);
     }
 }

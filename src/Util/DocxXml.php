@@ -39,7 +39,10 @@ class DocxXml {
             throw new \InvalidArgumentException('preg_match_all failed - ' . 'pattern: ' . $pattern . ', subject: ' . $subject);
         }
 
-        $matches = array_shift($matches);
+        if ([] !== $matches) {
+            /** @noinspection ReturnNullInspection */
+            $matches = array_shift($matches);
+        }
 
         return preg_split($pattern, $subject);
     }
