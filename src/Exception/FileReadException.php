@@ -1,7 +1,9 @@
 <?php
 
 /**
- * DocxTidy - File read exception
+ * This file is part of the DocxTidy package.
+ *
+ * File read exception
  *
  * Copyright (c) 2017 gyselroth™  (http://www.gyselroth.com)
  *
@@ -21,7 +23,7 @@ class FileReadException extends \Exception {
      * @param string            $filename
      * @param \Exception|null   $previous
      */
-    public function __construct($filename, \Exception $previous = null)
+    public function __construct(string $filename, \Exception $previous = null)
     {
         parent::__construct('Failed reading file: ' . $filename, 0, $previous);
     }

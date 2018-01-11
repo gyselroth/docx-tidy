@@ -1,7 +1,9 @@
 <?php
 
 /**
- * DocxTidy - Docx XML manipulation utility methods
+ * This file is part of the DocxTidy package.
+ *
+ * Docx XML manipulation utility methods
  *
  * Copyright (c) 2017 gyselroth™  (http://www.gyselroth.com)
  *
@@ -16,11 +18,11 @@ namespace DocxTidy\Util;
 class DocxXml {
 
     // "Limiting" type of tag: opening / close / neither of those
-    const TYPE_TAG_LIMITATION_NONE    = 0;
-    const TYPE_TAG_LIMITATION_OPEN = 1;
-    const TYPE_TAG_LIMITATION_CLOSE = 2;
+    public const TYPE_TAG_LIMITATION_OPEN  = 1;
+    public const TYPE_TAG_LIMITATION_CLOSE = 2;
+    private const TYPE_TAG_LIMITATION_NONE = 0;
 
-    const PATTERN_ELEMENT_TAG_UNCLOSED = '/<(\/)?(w:[a-z]+)/i';
+    private const PATTERN_ELEMENT_TAG_UNCLOSED = '/<(\/)?(w:[a-z]+)/i';
 
     /**
      * @param  string   $pattern
@@ -30,7 +32,7 @@ class DocxXml {
      * @throws \InvalidArgumentException
      * @note   First item of result array wasn't necessarily prefixed w/ given pattern before split
      */
-    public static function preg_split_with_matches($pattern, $subject, &$matches)
+    public static function preg_split_with_matches(string $pattern, string $subject, &$matches): array
     {
         $amountMatches = preg_match_all($pattern, $subject, $matches);
         if ($amountMatches === false) {
@@ -47,10 +49,11 @@ class DocxXml {
      *
      * @param  string $pattern
      * @param  string $subject
-     * @param  bool   $returnOnlyFullMatches    Default: returns all matches, including those of sub-expressions
+     * @param  bool   $returnOnlyFullMatches Default: returns all matches, including those of sub-expressions
      * @return array
+     * @throws \InvalidArgumentException
      */
-    public static function getAllPregMatches($pattern, $subject, $returnOnlyFullMatches = false)
+    public static function getAllPregMatches(string $pattern, string $subject, bool $returnOnlyFullMatches = false): array
     {
         $amountMatches = preg_match_all($pattern, $subject, $matches);
         if ($amountMatches === false) {
@@ -68,24 +71,24 @@ class DocxXml {
      * @return string
      * @throws \InvalidArgumentException
      */
-    public static function implodeWithGlues($pieces, $glues)
+    public static function implodeWithGlues(array $pieces, array $glues): string
     {
-        if (count($glues) === 0) {
+        if (\count($glues) === 0) {
             return implode('', $pieces);
         }
 
-        if (count($pieces) === 0) {
+        if (\count($pieces) === 0) {
             return '';
         }
 
         $result = '';
         foreach ($pieces as $index => $piece) {
-            if (is_array($piece)) {
+            if (\is_array($piece)) {
                 throw new \InvalidArgumentException('Pieces must be an array of strings');
             }
 
             $result .= $pieces[$index];
-            $result .= isset($glues[$index]) ? $glues[$index] : '';
+            $result .= $glues[$index] ?? '';
         }
 
         return $result;
@@ -98,12 +101,12 @@ class DocxXml {
      * @param  string $pattern
      * @return array
      */
-    public static function preg_match_array(array $subjects, $pattern)
+    public static function preg_match_array(array $subjects, string $pattern): array
     {
         $matches = [];
         foreach ($subjects as $index => $item) {
             preg_match($pattern, $item, $itemMatches);
-            $matches[] = count($itemMatches) > 1 ? $itemMatches[0] : null;
+            $matches[] = \count($itemMatches) > 1 ? $itemMatches[0] : null;
         }
 
         return $matches;
@@ -115,7 +118,7 @@ class DocxXml {
      * @return bool
      * @throws \InvalidArgumentException
      */
-    public static function areTagsOfSameType($tag1, $tag2)
+    public static function areTagsOfSameType(string $tag1, string $tag2): bool
     {
         return self::getTypeOfTag($tag1) === self::getTypeOfTag($tag2);
     }
@@ -126,11 +129,13 @@ class DocxXml {
      * @param  string $tag
      * @return int
      */
-    public static function getTagLimitingType($tag)
+    public static function getTagLimitingType(string $tag): int
     {
+        /** @noinspection ReturnFalseInspection */
         if (strpos($tag, '<w:') === 0) {
             return self::TYPE_TAG_LIMITATION_OPEN;
         }
+        /** @noinspection ReturnFalseInspection */
         if (strpos($tag, '</w:') === 0) {
             return self::TYPE_TAG_LIMITATION_CLOSE;
         }
@@ -145,12 +150,11 @@ class DocxXml {
      */
     public static function getTypeOfTag($tag)
     {
-        if (!is_string($tag)) {
+        if (!\is_string($tag)) {
             throw new \InvalidArgumentException('Tag type identification failed. Tag must be string. Given: ' . $tag);
         }
 
         $amountMatches = preg_match(self::PATTERN_ELEMENT_TAG_UNCLOSED, $tag, $matches);
-
         if (null === $amountMatches || empty($matches[2])) {
             throw new \InvalidArgumentException('Tag type identification failed. Argument: ' . $tag);
         }

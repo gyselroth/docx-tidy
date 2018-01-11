@@ -1,7 +1,9 @@
 <?php
 
 /**
- * DocxTidy - File write exception
+ * This file is part of the DocxTidy package.
+ *
+ * File write exception
  *
  * Copyright (c) 2017 gyselroth™  (http://www.gyselroth.com)
  *
@@ -21,7 +23,7 @@ class FileWriteException extends \Exception {
      * @param string            $filename
      * @param \Exception|null   $previous
      */
-    public function __construct($filename, \Exception $previous = null)
+    public function __construct(string $filename, \Exception $previous = null)
     {
         parent::__construct('Failed writing to file: ' . $filename, 0, $previous);
     }

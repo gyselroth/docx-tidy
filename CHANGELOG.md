@@ -1,6 +1,12 @@
 DocxTidy - Changelog
 ====================
 
+Version 0.5.0 - not released yet
+--------------------------------
+
+* Changed: Set language level to PHP7.1 (constant visibility, nullables, catch multiple exceptions, etc.)
+
+
 Version 0.4.5 - released 2017/10/09
 -----------------------------------
 

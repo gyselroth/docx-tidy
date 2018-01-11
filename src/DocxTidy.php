@@ -1,9 +1,9 @@
 <?php
 
 /**
- * DocxTidy
+ * This file is part of the DocxTidy package.
  *
- * Simplify markup of DOCX XML by tidying successive elements w/ redundant properties / types
+ * DocxTidy: Simplifies markup of DOCX XML by tidying successive elements w/ redundant properties / types
  *
  * 1. Merge successive runs having identical run-properties
  * 2. Merge successive elements of same type (<w:t>, <w:instrText>) within each run
@@ -20,36 +20,34 @@ namespace DocxTidy;
 
 use DocxTidy\Exception\FileReadException;
 use DocxTidy\Exception\FileWriteException;
+use DocxTidy\Mergeable\TagTupleMergeable;
 use DocxTidy\Util\DocxXml;
 use DocxTidy\Util\DocxZip;
 
 class DocxTidy
 {
     // Regular expressions matching (word) XML elements
-    const PATTERN_PARAGRAPH_OPEN       = '/<w:p .*?>/i';
-    const PATTERN_RUN_OPEN             = '/<w:r(\w){0}( .*?)?>/i';
-    const PATTERN_RUN_CLOSE            = '/<\/w:r>/i';
-    const PATTERN_RUN_PROPERTIES       = '/<w:rPr>.*?(<\/w:rPr>)/i';
-    const PATTERN_ELEMENT_TAG_UNCLOSED = '/<(\/)?w:[a-z]+/i';
+    private const PATTERN_PARAGRAPH_OPEN       = '/<w:p .*?>/i';
+    private const PATTERN_RUN_OPEN             = '/<w:r(\w){0}( .*?)?>/i';
+    private const PATTERN_RUN_CLOSE            = '/<\/w:r>/i';
+    private const PATTERN_RUN_PROPERTIES       = '/<w:rPr>.*?(<\/w:rPr>)/i';
+    private const PATTERN_ELEMENT_TAG_UNCLOSED = '/<(\/)?w:[a-z]+/i';
 
     // Items which will be removed by default from the whole XML
-    const PATTERN_LANG       = '<w:lang w:val="[a-z|-]{2,5}"\/>';
-    const PATTERN_NO_PROOF   = '<w:noProof\/>';
-    const PATTERN_PROOF_ERR  = '<w:proofErr w:type="\w+"\/>';
-    const PATTERN_FONTS_HINT = '<w:rFonts w:hint="\w+"\/>';
-    const PATTERN_W_HINT     = '\sw:hint="\w+"';
-    const PATTERN_EMPTY_TAG  = '<w:([a-z]+)><\/w:([a-z]+)>';
+    private const PATTERN_LANG       = '<w:lang w:val="[a-z|-]{2,5}"\/>';
+    private const PATTERN_NO_PROOF   = '<w:noProof\/>';
+    private const PATTERN_PROOF_ERR  = '<w:proofErr w:type="\w+"\/>';
+    private const PATTERN_FONTS_HINT = '<w:rFonts w:hint="\w+"\/>';
+    private const PATTERN_W_HINT     = '\sw:hint="\w+"';
+    private const PATTERN_EMPTY_TAG  = '<w:([a-z]+)><\/w:([a-z]+)>';
 
-    const STRING_TAG_RUN_CLOSE         = '</w:r>';
-    const STRING_TAG_W_TEXT_OPEN       = '<w:t>';
-    const STRING_TAG_W_INSTR_TEXT_OPEN = '<w:instrText>';
+    private const STRING_TAG_RUN_CLOSE         = '</w:r>';
+    private const STRING_TAG_W_TEXT_OPEN       = '<w:t>';
+    private const STRING_TAG_W_INSTR_TEXT_OPEN = '<w:instrText>';
 
-    const STRING_SPACE_PRESERVE        = ' xml:space="preserve"';
-    const STRING_FLDCHAR_TYPE_BEGIN    = 'fldCharType="begin"';
-    const STRING_FLDCHAR_TYPE_END      = 'fldCharType="end"';
-
-    /** @var array */
-    private $mergeableTagTypes = ['w:t', 'w:instrText'];
+    private const STRING_SPACE_PRESERVE        = ' xml:space="preserve"';
+    private const STRING_FLDCHAR_TYPE_BEGIN    = 'fldCharType="begin"';
+    private const STRING_FLDCHAR_TYPE_END      = 'fldCharType="end"';
 
     /** @var array  Array of content of runs (w/o run-opening tag) */
     private $runsInCurrentParagraph;
@@ -74,7 +72,7 @@ class DocxTidy
      */
     public function __construct()
     {
-        $this->lengthTagRunClose = strlen(self::STRING_TAG_RUN_CLOSE);
+        $this->lengthTagRunClose = \strlen(self::STRING_TAG_RUN_CLOSE);
     }
 
     /**
@@ -89,7 +87,7 @@ class DocxTidy
      * @throws \UnexpectedValueException
      * @throws \InvalidArgumentException
      */
-    public function tidyXml($xml, $removePattern = null)
+    public function tidyXml(string $xml, $removePattern = null): string
     {
         if ($removePattern !== false) {
             if ($removePattern === null) {
@@ -106,7 +104,7 @@ class DocxTidy
 
         // 1. Collect paragraphs, tidy each paragraph:
         $paragraphs       = DocxXml::preg_split_with_matches(self::PATTERN_PARAGRAPH_OPEN, $xml, $paragraphOpenTags);
-        $amountParagraphs = count($paragraphs);
+        $amountParagraphs = \count($paragraphs);
         for ($indexParagraph = 1; $indexParagraph < $amountParagraphs; $indexParagraph++) {
             // First item is XML and document meta data, NOT a paragraph
             do {
@@ -115,7 +113,7 @@ class DocxTidy
 
                 // Collect all runs into array
                 $this->runsInCurrentParagraph = DocxXml::preg_split_with_matches(self::PATTERN_RUN_OPEN, $paragraphs[$indexParagraph], $this->runOpenTagsInCurrentParagraph);
-                $amountRunsInCurrentParagraph = count($this->runsInCurrentParagraph);
+                $amountRunsInCurrentParagraph = \count($this->runsInCurrentParagraph);
 
                 if ($amountRunsInCurrentParagraph > 1) {
                     // Iterate over possibly merge-able runs
@@ -155,11 +153,12 @@ class DocxTidy
      * @throws \DocxTidy\Exception\FileReadException
      * @throws \DocxTidy\Exception\FileWriteException
      */
-    public function tidyDocx($docxPath, $outputPath = null, $removePattern = null)
+    public function tidyDocx(string $docxPath, $outputPath = null, $removePattern = null): bool
     {
         $xmlFiles = DocxZip::unzipDocx($docxPath);
 
         foreach ($xmlFiles as $xmlFile) {
+            /** @noinspection ReturnFalseInspection */
             $xmlContent = file_get_contents($xmlFile);
             if (false === $xmlContent) {
                 throw new FileReadException($xmlFile);
@@ -167,6 +166,7 @@ class DocxTidy
 
             $tidyXml = $this->tidyXml($xmlContent, $removePattern);
 
+            /** @noinspection ReturnFalseInspection */
             if (false === file_put_contents($xmlFile, $tidyXml)) {
                 throw new FileWriteException($xmlFile);
             }
@@ -182,7 +182,7 @@ class DocxTidy
      * @return int
      * @throws \InvalidArgumentException
      */
-    protected function mergeRunElements($amountRunsInCurrentParagraph)
+    protected function mergeRunElements(int $amountRunsInCurrentParagraph): int
     {
         $amountMergedTotal  = 0;
         // Iterate over runs in current paragraph
@@ -226,13 +226,12 @@ class DocxTidy
      * @param  array $elementTagsList     comma-separated list of element-tag openings, ex: <w:pPr,<w:pStyle,<w:spacing,...
      * @return bool
      */
-    protected static function containsMergeableElements($elementTagsList)
+    protected static function containsMergeableElements($elementTagsList): bool
     {
-        if ('' === $elementTagsList) {
-            return false;
-        }
-
-        return strpos($elementTagsList, '</w:t,<w:t') !== false || strpos($elementTagsList, '</w:instrText,<w:instrText') !== false;
+        /** @noinspection ReturnFalseInspection */
+        return '' === $elementTagsList
+            ? false
+            : strpos($elementTagsList, '</w:t,<w:t') !== false || strpos($elementTagsList, '</w:instrText,<w:instrText') !== false;
     }
 
     /**
@@ -243,13 +242,13 @@ class DocxTidy
      * @return int
      * @throws \InvalidArgumentException
      */
-    protected function joinElementsUsingUnclosedTagsReference(&$elementsInRun, &$elementTagsUnclosed)
+    protected function joinElementsUsingUnclosedTagsReference(array &$elementsInRun, array &$elementTagsUnclosed): int
     {
         // Iterate over element-types (skip 1st (being rPr) and last (does not have a following element that it could be joined w/)
-        $amountElementsInRun = count($elementsInRun);
+        $amountElementsInRun = \count($elementsInRun);
         $amountMerged        = 0;
         for ($index = 1; $index < $amountElementsInRun; $index++) {
-            if(!isset($elementsInRun[$index + 1]) || !$this->areTagsMergeable($elementsInRun[$index], $elementsInRun[$index + 1])) {
+            if(!isset($elementsInRun[$index + 1]) || !(new TagTupleMergeable($elementsInRun[$index], $elementsInRun[$index + 1]))->isMergeable()) {
                 continue;
             }
             $elementsInRun[$index - 1] .= str_replace(['<w:t>', '<w:instrText>'], '', $elementsInRun[$index + 1]);
@@ -272,48 +271,13 @@ class DocxTidy
     }
 
     /**
-     * Assert merge-abiliy of given tags
-     *
-     * 1. Must be not null
-     * 2. Must be of same type
-     * 3. Must be of supported merge-element types (<w:t> or <w:instrText>)
-     * 4. 1st element must be a closing-tag, 2nd element must be an opening tag
-     *
-     * @param  string $tag1
-     * @param  string $tag2
-     * @return bool
-     * @throws \InvalidArgumentException
-     */
-    protected function areTagsMergeable($tag1, $tag2)
-    {
-        if (null === $tag2) {
-            return false;
-        }
-        if (!DocxXml::areTagsOfSameType($tag1, $tag2)) {
-            return false;
-        }
-        if (! (DocxXml::getTagLimitingType($tag1) === DocxXml::TYPE_TAG_LIMITATION_CLOSE
-            && DocxXml::getTagLimitingType($tag2) === DocxXml::TYPE_TAG_LIMITATION_OPEN)) {
-            // Tags are not in merge-able limiting types order
-            return false;
-        }
-        if (!( in_array(DocxXml::getTypeOfTag($tag1), $this->mergeableTagTypes, true)
-            && in_array(DocxXml::getTypeOfTag($tag2), $this->mergeableTagTypes, true))) {
-            // Tags aren't merge-able tag types
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
      * If current and next run have identical run-properties (and not none): merge them into only one run
      *
      * @param  int $indexRun
      * @return bool
      * @throws \UnexpectedValueException
      */
-    protected function mergeCurrentRunWithNext($indexRun)
+    protected function mergeCurrentRunWithNext($indexRun): bool
     {
         if (!$this->areRunsMergeable($indexRun)) {
             return false;
@@ -322,7 +286,7 @@ class DocxTidy
         // Extract run properties
         $runProperties = DocxXml::preg_match_array($this->runsInCurrentParagraph, self::PATTERN_RUN_PROPERTIES);
 
-        if (count($runProperties) <= 1) {
+        if (\count($runProperties) <= 1) {
             return false;
         }
 
@@ -367,7 +331,7 @@ class DocxTidy
      * @param  int  $index
      * @return bool
      */
-    private function areRunsMergeable($index)
+    private function areRunsMergeable($index): bool
     {
         // Ensure 1st item ends w/ closing tag of run
         if (substr($this->runsInCurrentParagraph[$index], -$this->lengthTagRunClose) !== self::STRING_TAG_RUN_CLOSE) {
@@ -375,7 +339,9 @@ class DocxTidy
         }
 
         // Keep fldChar-scope runs (=from fldCharType="begin" to fldCharType="end") in one exclusive run
+        /** @noinspection ReturnFalseInspection */
         $nextRunStartsFieldCharScope  = strpos($this->runsInCurrentParagraph[$index + 1], self::STRING_FLDCHAR_TYPE_BEGIN) !== false;
+        /** @noinspection ReturnFalseInspection */
         $currentRunEndsFieldCharScope = strpos($this->runsInCurrentParagraph[$index],     self::STRING_FLDCHAR_TYPE_END) !== false;
 
         return !$nextRunStartsFieldCharScope && !$currentRunEndsFieldCharScope;
@@ -388,7 +354,7 @@ class DocxTidy
      * @return bool         Is within fldChar-scope (and did update run-properties at given index)?
      * @throws \UnexpectedValueException
      */
-    protected function updateRunPropertiesInFieldCharScope($index)
+    protected function updateRunPropertiesInFieldCharScope($index): bool
     {
         if (!$this->updateIsWithinFieldCharScope($index)) {
             return false;
@@ -420,10 +386,11 @@ class DocxTidy
      * @param  int  $indexRun
      * @return bool             Is $this->runsInCurrentParagraph[$indexRun] within a w:fldChar-scope (fldCharType="begin" until fldCharType="end")?
      */
-    public function updateIsWithinFieldCharScope($indexRun)
+    public function updateIsWithinFieldCharScope($indexRun): bool
     {
         if (!$this->isWithinFieldCharScope) {
             // Detect entering field character scope
+            /** @noinspection ReturnFalseInspection */
             $this->isWithinFieldCharScope = strpos($this->runsInCurrentParagraph[$indexRun], self::STRING_FLDCHAR_TYPE_BEGIN) !== false;
         }
         if (!$this->isWithinFieldCharScope) {
@@ -433,6 +400,7 @@ class DocxTidy
         }
 
         // While inside: detect end of fldChar-scope
+        /** @noinspection ReturnFalseInspection */
         $this->isFieldCharScopeEndingInCurrentRun = strpos($this->runsInCurrentParagraph[$indexRun], self::STRING_FLDCHAR_TYPE_END) !== false;
 
         if ($this->isFieldCharScopeEndingInCurrentRun) {
@@ -457,15 +425,17 @@ class DocxTidy
             $patternTagRunPropertiesSource = self::STRING_TAG_W_TEXT_OPEN;
         }
 
-        $amountRunsInParagraph = count($this->runsInCurrentParagraph);
+        $amountRunsInParagraph = \count($this->runsInCurrentParagraph);
         for ($index = $indexStart; $index < $amountRunsInParagraph; $index++) {
             // Seek next <w:t> Tag
+            /** @noinspection ReturnFalseInspection */
             if (strpos($this->runsInCurrentParagraph[$index], $patternTagRunPropertiesSource) !== false) {
                 // Set runPropertiesCurrent = <w:rPr> of <w:t>
                 preg_match(self::PATTERN_RUN_PROPERTIES, $this->runsInCurrentParagraph[$index], $runProperties);
                 return empty($runProperties) ? '' : $runProperties[0];
             }
 
+            /** @noinspection ReturnFalseInspection */
             if (strpos($this->runsInCurrentParagraph[$index], self::STRING_FLDCHAR_TYPE_END) !== false) {
                 break;
             }

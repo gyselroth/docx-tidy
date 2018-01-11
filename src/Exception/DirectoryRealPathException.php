@@ -1,7 +1,9 @@
 <?php
 
 /**
- * DocxTidy - Directory realpath exception
+ * This file is part of the DocxTidy package.
+ *
+ * Directory realpath exception
  *
  * Copyright (c) 2017 gyselroth™  (http://www.gyselroth.com)
  *
@@ -21,7 +23,7 @@ class DirectoryRealPathException extends \Exception {
      * @param string            $path
      * @param \Exception|null   $previous
      */
-    public function __construct($path, \Exception $previous = null)
+    public function __construct(string $path, \Exception $previous = null)
     {
         parent::__construct('Failed getting realpath: ' . $path, 0, $previous);
     }
