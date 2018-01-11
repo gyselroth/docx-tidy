@@ -3,7 +3,7 @@
 /**
  * This file is part of the DocxTidy package.
  *
- * Copyright (c) 2017 gyselroth™  (http://www.gyselroth.com)
+ * Copyright (c) 2017-2018 gyselroth™  (http://www.gyselroth.com)
  *
  * @package DocxTidy
  * @link    https://github.com/gyselroth/docx-tidy
