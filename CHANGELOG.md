@@ -1,8 +1,8 @@
 DocxTidy - Changelog
 ====================
 
-Version 0.5.0 - not released yet
---------------------------------
+Version 0.5.0 - released 2018/01/11
+-----------------------------------
 
 * Changed: Extracted tag-tuple merge-ability detection into new TagTupleMergeable class
 * Changed: Language level to PHP7.1 (constant visibility, nullables, catch multiple exceptions, etc.)
