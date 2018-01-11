@@ -38,11 +38,13 @@ either express or implied.
 Installation
 ------------
 
-Install the latest version with
+The recommended way to install is via Composer:
 
 ```bash
 $ composer require gyselroth/docx-tidy
 ```
+
+DocxTidy requires PHP 7.1 since version 0.5.0 (PHP 5.6 until version 0.4.5)
 
 
 Usage
