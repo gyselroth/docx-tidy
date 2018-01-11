@@ -131,7 +131,6 @@ class DocxTidy
         }
 
         $xml = DocxXml::implodeWithGlues($paragraphs, $paragraphOpenTags);
-
         // Runs of leading and trailing spaces get stripped if xml:space isn’t set to preserve, and are preserved otherwise
         return str_replace(
             ['<w:t>',                                    '<w:instrText>'],
@@ -156,7 +155,6 @@ class DocxTidy
     public function tidyDocx(string $docxPath, $outputPath = null, $removePattern = null): bool
     {
         $xmlFiles = DocxZip::unzipDocx($docxPath);
-
         foreach ($xmlFiles as $xmlFile) {
             /** @noinspection ReturnFalseInspection */
             $xmlContent = file_get_contents($xmlFile);
@@ -286,7 +284,6 @@ class DocxTidy
 
         // Extract run properties
         $runProperties = DocxXml::preg_match_array($this->runsInCurrentParagraph, self::PATTERN_RUN_PROPERTIES);
-
         if (\count($runProperties) <= 1) {
             return false;
         }
@@ -362,23 +359,23 @@ class DocxTidy
         }
 
         // Inherit run-properties of fldChar-scope (unless scope spans only this sole run)
-        if ($this->isWithinFieldCharScope && !$this->isFieldCharScopeEndingInCurrentRun) {
-            if (false === $this->runPropertiesInFieldCharScope) {
-                $this->runPropertiesInFieldCharScope = $this->getRunPropertiesOfFieldCharScope($index);
-            }
-            if (false === $this->runPropertiesInFieldCharScope) {
-                throw new \UnexpectedValueException('No w:t or w:instrText tag found in paragraph after fldCharType="begin"');
-            }
-
-            // Inherit run-properties (from 1st w:t or w:instrText inside current fieldChar-scope)
-            if (null === $this->runsInCurrentParagraph[$index]) {
-                throw new \UnexpectedValueException('Failed replace run-properties in: ' . $this->runsInCurrentParagraph[$index]);
-            }
-
-            return true;
+        if (!$this->isWithinFieldCharScope || $this->isFieldCharScopeEndingInCurrentRun) {
+            return false;
         }
 
-        return false;
+        if (false === $this->runPropertiesInFieldCharScope) {
+            $this->runPropertiesInFieldCharScope = $this->getRunPropertiesOfFieldCharScope($index);
+        }
+        if (false === $this->runPropertiesInFieldCharScope) {
+            throw new \UnexpectedValueException('No w:t or w:instrText tag found in paragraph after fldCharType="begin"');
+        }
+
+        // Inherit run-properties (from 1st w:t or w:instrText inside current fieldChar-scope)
+        if (null === $this->runsInCurrentParagraph[$index]) {
+            throw new \UnexpectedValueException('Failed replace run-properties in: ' . $this->runsInCurrentParagraph[$index]);
+        }
+
+        return true;
     }
 
     /**
