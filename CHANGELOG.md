@@ -1,6 +1,13 @@
 DocxTidy - Changelog
 ====================
 
+
+Version 0.5.1 - released 2018/01/16
+-----------------------------------
+
+* Bugfix: Avoid possible error during DOCX archive extraction
+
+
 Version 0.5.0 - released 2018/01/11
 -----------------------------------
 

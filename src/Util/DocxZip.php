@@ -32,11 +32,13 @@ class DocxZip
         $zipPath        = $extractedFiles . '.zip';
         copy($docxPath, $zipPath);
 
-        self::rmdirRecursive($extractedFiles);
+        if (file_exists($extractedFiles)) {
+            chmod($extractedFiles, 0777);
+            self::rmdirRecursive($extractedFiles);
+        }
 
         $zipArchive = new ZipArchive();
         $zipArchive->open($zipPath);
-        chmod($extractedFiles, 0777);
         $zipArchive->extractTo($extractedFiles);
         $zipArchive->close();
 
